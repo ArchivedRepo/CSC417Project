@@ -18,10 +18,8 @@ bool simulating = true;
 bool simulation_callback() {
 
     while(simulating) {
-        simulate(q, qdot, dt, t);
-        t += dt;
-    }
 
+    }
     return false;
 }
 

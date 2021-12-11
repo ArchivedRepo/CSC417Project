@@ -4,7 +4,6 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include <igl/unproject.h>
-#include <pick_nearest_vertices.h>
 
 #include <igl/opengl/glfw/Viewer.h>
 #include <igl/opengl/glfw/imgui/ImGuiMenu.h>
@@ -46,8 +45,6 @@ namespace Visualize {
     bool mouse_down(igl::opengl::glfw::Viewer &viewer, int x, int y);
     
     bool mouse_up(igl::opengl::glfw::Viewer &viewer, int x, int y);
-    
-    bool mouse_move(igl::opengl::glfw::Viewer &viewer, int x, int y);
 
     igl::opengl::glfw::Viewer & viewer();
 
