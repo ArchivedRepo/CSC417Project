@@ -3,6 +3,7 @@
 
 #include <assignment_setup.h>
 #include <visualization.h>
+#include <init_particles.h>
 
 //Simulation State
 Eigen::VectorXd q;
@@ -54,8 +55,20 @@ int main(int argc, char **argv) {
     std::thread simulation_thread(simulation_callback);
     simulation_thread.detach();
 
+    Eigen::MatrixXd positions;
+    Eigen::Vector3d bot_left_pos;
+
+    bot_left_pos << -0.1, -0.1, -0.1;
+    init_particles(positions, bot_left_pos, 20, 20, 20);
+
+    const Eigen::RowVector3d particle_color(0.0, 0.6, 1.0);
+
+    Visualize::viewer().data().set_points(positions, particle_color);
+    Visualize::viewer().data().point_size = 5.0;
+
     //setup libigl viewer and activate 
     Visualize::setup(q, qdot, true);
+    Visualize::viewer().core().set_rotation_type(igl::opengl::ViewerCore::ROTATION_TYPE_TRACKBALL);
     Visualize::viewer().callback_post_draw = &draw_callback;
     Visualize::viewer().launch();
 
