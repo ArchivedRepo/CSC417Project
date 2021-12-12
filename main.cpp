@@ -56,10 +56,12 @@ int main(int argc, char **argv) {
     simulation_thread.detach();
 
     Eigen::MatrixXd positions;
-    Eigen::Vector3d bot_left_pos;
+    Eigen::Vector3d bot_left;
+    Eigen::Vector3d up_right;
 
-    bot_left_pos << -0.1, -0.1, -0.1;
-    init_particles(positions, bot_left_pos, 20, 20, 20);
+    bot_left.setZero();
+    up_right << 2.0, 2.0, 2.0;
+    init_particles(positions, bot_left, up_right, 0.05);
 
     const Eigen::RowVector3d particle_color(0.0, 0.6, 1.0);
 
