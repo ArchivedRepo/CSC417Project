@@ -10,7 +10,6 @@ namespace Visualize {
     std::vector<std::pair<Eigen::MatrixXd, Eigen::MatrixXi> > g_geometry;
     std::vector<Eigen::RowVector3d> g_color;
     std::vector<std::pair<Eigen::MatrixXd, Eigen::MatrixXi> > g_skin;
-    std::vector<Eigen::SparseMatrixd> g_N;
     bool g_skinning = true;
 
     std::vector<unsigned int> g_id; //id into libigl for these meshes 
@@ -100,130 +99,6 @@ void Visualize::setup(const Eigen::VectorXd &q, const Eigen::VectorXd &qdot, boo
         menu.draw_viewer_menu();
     };
 
-    Visualize::g_viewer.callback_mouse_down = mouse_down;
-    Visualize::g_viewer.callback_mouse_up = mouse_up;
-    Visualize::g_viewer.callback_mouse_move = mouse_move;
-
     Visualize::g_viewer.core().background_color.setConstant(1.0);
     Visualize::g_viewer.core().is_animating = true;
-}
-
-void Visualize::rigid_transform_1d(unsigned int id, double x) {
-    
-    //reset vertex positions 
-    for(unsigned int ii=0; ii<g_geometry[id].first.rows(); ++ii) {
-        g_viewer.data_list[g_id[id]].V(ii,0) = g_geometry[id].first(ii,0) + x;
-        }
-
-        //tell viewer to update
-        g_viewer.data_list[g_id[id]].dirty |= igl::opengl::MeshGL::DIRTY_POSITION;
-}
-
-void Visualize::scale_x(unsigned int id, double x) {
-    
-    //reset vertex positions 
-    for(unsigned int ii=0; ii<g_geometry[id].first.rows(); ++ii) {
-        g_viewer.data_list[g_id[id]].V(ii,0) = x*g_geometry[id].first(ii,0);
-        }
-
-        //tell viewer to update
-        g_viewer.data_list[g_id[id]].dirty |= igl::opengl::MeshGL::DIRTY_POSITION;
-
-}
-
-void Visualize::update_vertex_positions(unsigned int id, Eigen::Ref<const Eigen::VectorXd> pos) {
-
-    //update vertex positions
-    for(unsigned int ii=0; ii<g_geometry[id].first.rows(); ++ii) {
-        g_geometry[g_id[id]].first.row(ii) = pos.segment<3>(3*ii).transpose();
-        }
-
-    if(g_skinning) 
-        g_viewer.data_list[g_id[id]].V = g_N[id]*g_geometry[g_id[id]].first;
-    else
-        g_viewer.data_list[g_id[id]].V = g_geometry[g_id[id]].first;
-
-        //tell viewer to update
-        g_viewer.data_list[g_id[id]].dirty |= igl::opengl::MeshGL::DIRTY_POSITION;
-}
-
-const std::vector<unsigned int> & Visualize::picked_vertices() {
-    return g_picked_vertices;
-}
-
-void Visualize::set_picking_tolerance(double r) {
-    g_picking_tol = r;
-}
-
-bool Visualize::mouse_up(igl::opengl::glfw::Viewer &viewer, int x, int y) {
-
-    g_mouse_dragging = false;
-    g_picked_vertices.clear();
-    g_mouse_drag_world.setZero();
-    return false;
-}
-
-const Eigen::Vector3d & Visualize::mouse_world() {
-    return g_mouse_world;
-}
-
-const Eigen::Vector3d & Visualize::mouse_drag_world() {
-    return g_mouse_drag_world;
-}
-
-bool Visualize::mouse_move(igl::opengl::glfw::Viewer &viewer, int x, int y) {
-
-    g_mouse_drag = Eigen::Vector3d(g_viewer.current_mouse_x,viewer.core().viewport(3) - g_viewer.current_mouse_y,0.) - g_mouse_win;
-    g_mouse_win = Eigen::Vector3d(g_viewer.current_mouse_x,viewer.core().viewport(3) - g_viewer.current_mouse_y,0.);
-
-    igl::unproject(
-            g_mouse_win,
-            g_viewer.core().view,
-            g_viewer.core().proj,
-                g_viewer.core().viewport,
-            g_mouse_drag_world);
-    
-
-    g_mouse_drag_world -= g_mouse_world;
-
-    //std::cout<<"Test: "<<g_mouse_drag_world.transpose()<<"\n";
-    igl::unproject(
-            g_mouse_win,
-            g_viewer.core().view,
-            g_viewer.core().proj,
-                g_viewer.core().viewport,
-            g_mouse_world);
-    
-
-    if(g_mouse_dragging && g_picked_vertices.size() > 0 ) {
-        return true;
-    } 
-    
-    return false;
-}
-
-bool Visualize::is_mouse_dragging() {
-    return g_mouse_dragging;
-}
-
-void Visualize::toggle_skinning(bool skinning) {
-    g_skinning = skinning;
-
-    if(!skinning) {
-        for(unsigned int ii=0; ii<g_geometry.size(); ++ii) {
-            g_viewer.data_list[g_id[ii]].clear();
-            g_viewer.data_list[g_id[ii]].set_mesh(g_geometry[ii].first,g_geometry[ii].second);
-            g_viewer.data_list[g_id[ii]].set_colors(g_color[ii]);
-        }
-    } else {
-        for(unsigned int ii=0; ii<g_geometry.size(); ++ii) {
-            g_viewer.data_list[g_id[ii]].clear();
-            g_viewer.data_list[g_id[ii]].set_mesh(g_skin[ii].first,g_skin[ii].second);
-            g_viewer.data_list[g_id[ii]].set_colors(g_color[ii]);
-        }
-    }
-}
-
-const Eigen::MatrixXd & Visualize::geometry(unsigned int id) {
-    return g_geometry[g_id[id]].first;
 }

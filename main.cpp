@@ -25,8 +25,6 @@ bool simulation_callback() {
 
 bool draw_callback(igl::opengl::glfw::Viewer &viewer) {
     
-    draw(q, qdot, t);
-
     return false;
 }
 
