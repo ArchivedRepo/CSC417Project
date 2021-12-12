@@ -21,9 +21,9 @@ which the particles move
 */
 void build_grid(
     Eigen::MatrixXd positions,
-    Eigen::VectorXi indices,
-    Eigen::VectorXi result,
+    std::vector<int> result,
     double cube_s,
     Eigen::Vector3d bot_left,
-    Eigen::Vector3d up_right
-);
+    Eigen::Vector3d up_right,
+    std::vector<std::tuple<int, int>> grid_indices
+)
