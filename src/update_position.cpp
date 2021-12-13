@@ -1,6 +1,19 @@
-#include <update_positions.h>
+#include <update_position.h>
 #include <cmath>
 #include <kernels.h>
+
+#define BOUND_LIMIT 1e-3
+
+// Apply boundry condition
+static void apply_boundry(
+    &Eigen::Vector3d result, 
+    Eigen::Vector3d bot_left, 
+    Eigen::Vector3d up_right
+    ){
+        result(0) = std::max(std::min(result(0), up_right(0) - BOUND_LIMIT), bot_left(0) + BOUND_LIMIT);
+        result(1) = std::max(std::min(result(1), up_right(0) - BOUND_LIMIT), bot_left(1) + BOUND_LIMIT);
+        result(2) = std::max(std::min(result(2), up_right(2) - BOUND_LIMIT), bot_left(2) + BOUND_LIMIT);
+}
 
 void update_position(
     Eigen::Matrix3d &positions,
@@ -62,6 +75,12 @@ void update_position(
                     double s_corr = -k * std::pow(poly6(r, h)/poly6(tmp, h), n_coor);
                     delta_position += (1/pho0) * (s_corr + lambdas(i)+lambdas(j)) * local_grad;
                 }
+
+                Eigen::Vector3d tmp;
+                tmp = positions.row(i) + delta_position;
+                apply_boundry(tmp, bot_left, up_right);
+                new_positions.row(i) = tmp;
+                
             }
         }
     }
