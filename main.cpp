@@ -65,7 +65,10 @@ int main(int argc, char **argv) {
 
     bot_left.setZero();
     up_right << 2.0, 2.0, 2.0;
-    init_particles(positions, bot_left, up_right, 0.5);
+    
+    init_particles(positions, bot_left, up_right, 1.0);
+    std::cout << positions.row(0) << std::endl;
+    velocity.resize(positions.rows(), 3);
     velocity.setZero();
 
     const Eigen::RowVector3d particle_color(0.0, 0.6, 1.0);
@@ -82,6 +85,8 @@ int main(int argc, char **argv) {
 			case 'a':
 				//with ghost pressure
 				simulation_callback();
+                Visualize::viewer().data().set_points(positions, particle_color);
+                std::cout << positions.rows() << positions.cols() << std::endl;
 				break;
 			default:
 				return false;
