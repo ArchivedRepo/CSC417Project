@@ -8,9 +8,8 @@ void advect(
     Eigen::Vector3d &accu,
     float dt
 ) {
-    std::cout << "BEFORE: " << velocity.rows() << " " << velocity.cols() << std::endl;
-    velocity = velocity + dt * accu;
-    std::cout << "AFTER: " << velocity.rows() << " " << velocity.cols() << std::endl;
+    
+    velocity = velocity + dt * Eigen::MatrixXd::Ones(velocity.rows(), velocity.cols()) * accu;
     p1.resize(p0.rows(), p0.cols());
     p1 = p0 + dt * velocity;
 }
