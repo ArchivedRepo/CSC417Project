@@ -2,11 +2,11 @@
 
 
 void compute_lambda(
-    Eigen:MatrixXd &positions,
-    std:vector<int> &grid_result,
+    Eigen::MatrixXd &positions,
+    std::vector<int> &grid_result,
     double cube_s,
     Eigen::Vector3d &bot_left,
-    EIgen::Vector3d &up_right,
+    Eigen::Vector3d &up_right,
     std::vector<std::tuple<int, int>> &grid_indices,
     Eigen::VectorXd &lambdas,
     double pho0,
@@ -14,4 +14,6 @@ void compute_lambda(
     double h,
     double sigma,
     int i // indicate which particle to compute
-);
+) {
+
+}
