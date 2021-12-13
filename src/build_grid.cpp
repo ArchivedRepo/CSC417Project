@@ -2,7 +2,7 @@
 
 static int compute_index(
     Eigen::Vector3d position,
-    Eigen::Vector3d bot_left,
+    Eigen::Vector3d &bot_left,
     int L, int W, int H, double cube_s
 ) {
     Eigen::Vector3d relative_pos = position - bot_left;
@@ -18,12 +18,12 @@ static int compute_index(
 
 
 void build_grid(
-    Eigen::MatrixXd positions,
-    std::vector<int> result,
+    Eigen::MatrixXd &positions,
+    std::vector<int> &result,
     double cube_s,
-    Eigen::Vector3d bot_left,
-    Eigen::Vector3d up_right,
-    std::vector<std::tuple<int, int>> grid_indices // tuple<grid_index, particle_index>
+    Eigen::Vector3d &bot_left,
+    Eigen::Vector3d &up_right,
+    std::vector<std::tuple<int, int>> &grid_indices // tuple<grid_index, particle_index>
 ) {
     int L = up_right(0) - bot_left(0);
     int W = up_right(1) - bot_left(1);

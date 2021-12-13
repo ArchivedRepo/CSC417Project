@@ -2,8 +2,8 @@
 
 void init_particles(
     Eigen::MatrixXd &positions,
-    Eigen::Vector3d bot_left,
-    Eigen::Vector3d up_right,
+    Eigen::Vector3d &bot_left,
+    Eigen::Vector3d &up_right,
     double step
 ) {
 

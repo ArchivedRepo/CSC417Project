@@ -10,9 +10,9 @@ accu: accelaration
 dt: time step
 */
 void advect(
-    Eigen::MatrixXd velocity,
-    Eigen::MatrixXd p0,
-    Eigen::MatrixXd p1,
-    Eigen::Vector3d accu,
+    Eigen::MatrixXd &velocity,
+    Eigen::MatrixXd &p0,
+    Eigen::MatrixXd &p1,
+    Eigen::Vector3d &accu,
     float dt
 );

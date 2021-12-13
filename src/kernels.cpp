@@ -1,6 +1,6 @@
 #include <kernels.h>
 
-float poly6(Eigen::Vector3d R, double h) {
+float poly6(Eigen::Vector3d &R, double h) {
     float r = R.norm();
     float h2 = h * h;
     float r2 = r * r;
@@ -14,7 +14,7 @@ float poly6(Eigen::Vector3d R, double h) {
     }
 }
 
-void splky_grad(Eigen::Vector3d R, double h, Eigen::Vector3d grad) {
+void splky_grad(Eigen::Vector3d &R, double h, Eigen::Vector3d &grad) {
     double h3 = h * h * h;
     double h6 = h3 * h3;
     double r = R.norm();
