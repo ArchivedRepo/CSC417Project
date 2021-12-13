@@ -23,7 +23,7 @@ double n_coor = 4;
 
 //simulation time and time step
 double t = 0; //simulation time 
-double dt = 0.001; //time step
+double dt = 0.1; //time step
 
 //simulation loop
 bool simulating = true;
@@ -66,8 +66,7 @@ int main(int argc, char **argv) {
     bot_left.setZero();
     up_right << 2.0, 2.0, 2.0;
     
-    init_particles(positions, bot_left, up_right, 1.0);
-    std::cout << positions.row(0) << std::endl;
+    init_particles(positions, bot_left, up_right, 0.5);
     velocity.resize(positions.rows(), 3);
     velocity.setZero();
 
@@ -86,7 +85,6 @@ int main(int argc, char **argv) {
 				//with ghost pressure
 				simulation_callback();
                 Visualize::viewer().data().set_points(positions, particle_color);
-                std::cout << positions.rows() << positions.cols() << std::endl;
 				break;
 			default:
 				return false;

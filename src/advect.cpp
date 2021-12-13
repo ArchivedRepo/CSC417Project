@@ -8,8 +8,8 @@ void advect(
     Eigen::Vector3d &accu,
     float dt
 ) {
-    
-    velocity = velocity + dt * Eigen::MatrixXd::Ones(velocity.rows(), velocity.cols()) * accu;
+    // Eigen cannot auto broadcast!
+    velocity = velocity + dt * Eigen::VectorXd::Ones(velocity.rows()) * accu.transpose();
     p1.resize(p0.rows(), p0.cols());
     p1 = p0 + dt * velocity;
 }
