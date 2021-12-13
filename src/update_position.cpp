@@ -17,8 +17,8 @@ static void apply_boundry(
 }
 
 void update_position(
-    Eigen::Matrix3d &positions,
-    Eigen::Matrix3d &new_positions,
+    Eigen::MatrixXd &positions,
+    Eigen::MatrixXd &new_positions,
     std::vector<int> grid_result,
     double cube_s,
     Eigen::Vector3d &bot_left,
