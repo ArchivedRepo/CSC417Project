@@ -6,10 +6,10 @@
 
 // Apply boundry condition
 static void apply_boundry(
-    &Eigen::Vector3d result, 
+    Eigen::Vector3d &result, 
     Eigen::Vector3d bot_left, 
     Eigen::Vector3d up_right
-    ){
+){
         result(0) = std::max(std::min(result(0), up_right(0) - BOUND_LIMIT), bot_left(0) + BOUND_LIMIT);
         result(1) = std::max(std::min(result(1), up_right(0) - BOUND_LIMIT), bot_left(1) + BOUND_LIMIT);
         result(2) = std::max(std::min(result(2), up_right(2) - BOUND_LIMIT), bot_left(2) + BOUND_LIMIT);
@@ -29,7 +29,7 @@ void update_position(
     double epsilon,
     double k, // k for tensile instability
     double delta_q,// delta_q for tensile instability
-    double n_coor // n for compute tensile instability
+    double n_coor, // n for compute tensile instability
     double i
 ) {
     int L = up_right(0) - bot_left(0);
@@ -69,6 +69,7 @@ void update_position(
                 for (int j = start; start < end; start++) {
                     int cur_particle_idx = std::get<1>(grid_indices[j]);
                     Eigen::Vector3d r = positions.row(i)-positions.row(j);
+                    Eigen::Vector3d local_grad;
                     spiky_grad(r, h, local_grad);
                     Eigen::Vector3d tmp;
                     tmp << delta_q, 0.0, 0.0;
@@ -77,7 +78,7 @@ void update_position(
                 }
 
                 Eigen::Vector3d tmp;
-                tmp = positions.row(i) + delta_position;
+                tmp = (Eigen::Vector3d)positions.row(i) + delta_position;
                 apply_boundry(tmp, bot_left, up_right);
                 new_positions.row(i) = tmp;
                 

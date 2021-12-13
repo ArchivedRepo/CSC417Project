@@ -18,6 +18,6 @@ void update_position(
     double epsilon,
     double k, // k for tensile instability
     double delta_q,// delta_q for tensile instability
-    double n_coor // n for compute tensile instability
+    double n_coor, // n for compute tensile instability
     double i
 );
