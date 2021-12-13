@@ -4,24 +4,35 @@
 #include <assignment_setup.h>
 #include <visualization.h>
 #include <init_particles.h>
+#include <simulation_step.h>
 
-//Simulation State
-Eigen::VectorXd q;
-Eigen::VectorXd qdot;
+Eigen::MatrixXd positions;
+Eigen::MatrixXd velocity;
+Eigen::Vector3d gravity(0.0, 0.0, -9.8);
+Eigen::Vector3d bot_left;
+Eigen::Vector3d up_right;
+double cube_s = 0.1;
+int num_iterations = 5;
+double pho0 = 8000;
+double epsilon = 10;
+double mass = 1.0;
+double h_kernel = 0.1;
+double k = 0.001;
+double delta_q = 0.003*h_kernel;
+double n_coor = 4;
 
 //simulation time and time step
 double t = 0; //simulation time 
-double dt = 0.00001; //time step
+double dt = 0.001; //time step
 
 //simulation loop
 bool simulating = true;
 
 bool simulation_callback() {
-
-    while(simulating) {
-
-    }
-    return false;
+    simulation_step(positions, velocity, gravity, bot_left,
+    up_right, cube_s, num_iterations, dt, pho0, epsilon, 
+    mass, h_kernel, k, delta_q, n_coor);
+    return true;
 }
 
 bool draw_callback(igl::opengl::glfw::Viewer &viewer) {
@@ -47,29 +58,39 @@ void h(Ret &&a, B b, C c, void (*func)(Ret, B, C)) {
 int main(int argc, char **argv) {
 
     std::cout<<"Start A6\n";
-
-    //assignment specific setup
-    assignment_setup(argc, argv, q, qdot);
-
+    
     //run simulation in seperate thread to avoid slowing down the UI
-    std::thread simulation_thread(simulation_callback);
-    simulation_thread.detach();
-
-    Eigen::MatrixXd positions;
-    Eigen::Vector3d bot_left;
-    Eigen::Vector3d up_right;
+    // std::thread simulation_thread(simulation_callback);
+    // simulation_thread.detach();
 
     bot_left.setZero();
     up_right << 2.0, 2.0, 2.0;
-    init_particles(positions, bot_left, up_right, 0.05);
+    init_particles(positions, bot_left, up_right, 0.5);
+    velocity.setZero();
 
     const Eigen::RowVector3d particle_color(0.0, 0.6, 1.0);
 
     Visualize::viewer().data().set_points(positions, particle_color);
     Visualize::viewer().data().point_size = 5.0;
 
+    Visualize::viewer().callback_key_pressed =
+			[&](igl::opengl::glfw::Viewer&, unsigned char key, int)->bool
+		{
+			switch (key)
+			{
+			case 'A':
+			case 'a':
+				//with ghost pressure
+				simulation_callback();
+				break;
+			default:
+				return false;
+			}
+			return true;
+		};
+
     //setup libigl viewer and activate 
-    Visualize::setup(q, qdot, true);
+    Visualize::setup(true);
     Visualize::viewer().core().set_rotation_type(igl::opengl::ViewerCore::ROTATION_TYPE_TRACKBALL);
     Visualize::viewer().callback_post_draw = &draw_callback;
     Visualize::viewer().launch();

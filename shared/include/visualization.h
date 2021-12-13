@@ -21,7 +21,7 @@
 
 namespace Visualize {
 
-    void setup(const Eigen::VectorXd &q, const Eigen::VectorXd &qdot, bool ps_plot = false);
+    void setup(bool ps_plot = false);
     igl::opengl::glfw::Viewer & viewer();
     igl::opengl::glfw::imgui::ImGuiMenu & viewer_menu();
 

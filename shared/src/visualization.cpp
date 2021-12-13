@@ -40,10 +40,7 @@ igl::opengl::glfw::imgui::ImGuiMenu & Visualize::viewer_menu() { return menu; }
 
 igl::opengl::glfw::Viewer & Visualize::viewer() { return g_viewer; }
 
-void Visualize::setup(const Eigen::VectorXd &q, const Eigen::VectorXd &qdot, bool ps_plot) {
-
-    g_q = &q;
-    g_qdot = &qdot;
+void Visualize::setup(bool ps_plot) {
 
     //add new menu for phase space plotting
     Visualize::g_viewer.plugins.push_back(&menu);

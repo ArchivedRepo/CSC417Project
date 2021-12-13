@@ -9,5 +9,12 @@ void simulation_step(
     Eigen::Vector3d &up_right,
     double cube_s,
     int num_iterations,
-    double dt
+    double dt,
+    double pho0,
+    double epsilon,
+    double mass,
+    double h_kernel,
+    double k,
+    double delta_q,
+    double n_coor
 );
