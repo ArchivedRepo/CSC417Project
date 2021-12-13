@@ -4,7 +4,8 @@
 
 #define BOUND_LIMIT 1e-3
 
-// Apply boundry condition
+// Apply boundry condition, squeeze the particle back into the box if it goes out
+// of bound.
 static void apply_boundry(
     Eigen::Vector3d &result, 
     Eigen::Vector3d bot_left, 
