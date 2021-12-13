@@ -1,6 +1,6 @@
 #include <build_grid.h>
 
-static int compute_index(
+int compute_index(
     Eigen::Vector3d position,
     Eigen::Vector3d &bot_left,
     int L, int W, int H, double cube_s
@@ -16,6 +16,17 @@ static int compute_index(
     return h + int_pos(0);
 }
 
+
+void index_to_xyh(int index, int L, int W, int H, int &x, int &y, int &h) {
+    h = index / (L * W);
+    int plane_coor = h % (L * W);
+    x = plane_coor % L;
+    y = plane_coor / L;
+}
+
+void xyh_to_index(int x, int y, int h, int L, int W, int H, int &index) {
+    index = h * (W * L) + y * L + x;
+}
 
 void build_grid(
     Eigen::MatrixXd &positions,
