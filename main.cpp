@@ -17,16 +17,23 @@ double pho0 = 8000;
 double epsilon = 10;
 double mass = 1.0;
 double h_kernel = 0.1;
-double k = 0.001;
+double k = 0.00;
 double delta_q = 0.003*h_kernel;
 double n_coor = 4;
 
 //simulation time and time step
 double t = 0; //simulation time 
-double dt = 0.1; //time step
+double dt = 0.001; //time step
 
 //simulation loop
 bool simulating = true;
+
+static void print_position(Eigen::MatrixXd positions) {
+    std::cout << "+++++++++++++++++++++++++++++++" << std::endl;
+    for (int i = 0; i < positions.rows(); i++) {
+        std::cout << positions.row(i) << std::endl;
+    }
+}
 
 bool simulation_callback() {
     simulation_step(positions, velocity, gravity, bot_left,
@@ -73,7 +80,7 @@ int main(int argc, char **argv) {
     const Eigen::RowVector3d particle_color(0.0, 0.6, 1.0);
 
     Visualize::viewer().data().set_points(positions, particle_color);
-    Visualize::viewer().data().point_size = 5.0;
+    Visualize::viewer().data().point_size = 20.0;
 
     Visualize::viewer().callback_key_pressed =
 			[&](igl::opengl::glfw::Viewer&, unsigned char key, int)->bool
@@ -84,6 +91,7 @@ int main(int argc, char **argv) {
 			case 'a':
 				//with ghost pressure
 				simulation_callback();
+                print_position(positions);
                 Visualize::viewer().data().set_points(positions, particle_color);
 				break;
 			default:

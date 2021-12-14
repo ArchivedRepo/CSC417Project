@@ -21,7 +21,7 @@ int compute_index(
 
 void index_to_xyh(int index, int L, int W, int H, int &x, int &y, int &h) {
     h = index / (L * W);
-    int plane_coor = h % (L * W);
+    int plane_coor = index % (L * W);
     x = plane_coor % L;
     y = plane_coor / L;
 }

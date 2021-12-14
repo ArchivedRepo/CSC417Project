@@ -5,6 +5,8 @@
 #include <update_position.h>
 #include <update_velocity.h>
 
+#include <iostream>
+
 void simulation_step(
     Eigen::MatrixXd &positions,
     Eigen::MatrixXd &velocity,
@@ -30,26 +32,27 @@ void simulation_step(
     std::vector<std::tuple<int, int>> grid_indices;
 
     build_grid(position_star, grid_result, cube_s, bot_left, up_right, grid_indices);
-    // Eigen::VectorXd lambdas;
-    // lambdas.resize(positions.rows());
-    // lambdas.setZero();
+    Eigen::VectorXd lambdas;
+    lambdas.resize(positions.rows());
+    lambdas.setZero();
 
-    // Eigen::MatrixXd tmp;
-    // tmp.resize(N, 3);
-    // for (int i = 0; i < num_iterations; i++) {
-    //     for (int idx=0; idx < N; idx++) { 
-    //         compute_lambda(position_star, grid_result, cube_s, bot_left, up_right,
-    //         grid_indices, lambdas, pho0, h_kernel, epsilon, mass, idx);
-    //     }
-    //     tmp.setZero();
-    //     for (int idx=0; idx<N; idx++) {
-    //         update_position(position_star, tmp, grid_result, cube_s, 
-    //         bot_left, up_right, grid_indices, lambdas, pho0, h_kernel, epsilon,
-    //         k, delta_q, n_coor, idx);
-    //     }
-    //     position_star = tmp;
-    // }
-    // update_velocity(positions, position_star, dt, velocity);
+    Eigen::MatrixXd tmp;
+    tmp.resize(N, 3);
+    for (int i = 0; i < num_iterations; i++) {
+        for (int idx=0; idx < N; idx++) { 
+            compute_lambda(position_star, grid_result, cube_s, bot_left, up_right,
+            grid_indices, lambdas, pho0, h_kernel, epsilon, mass, idx);
+        }
+        tmp.setZero();
+        for (int idx=0; idx<N; idx++) {
+            update_position(position_star, tmp, grid_result, cube_s, 
+            bot_left, up_right, grid_indices, lambdas, pho0, h_kernel, epsilon,
+            k, delta_q, n_coor, idx);
+        }
+        position_star = tmp;
+    }
+    update_velocity(positions, position_star, dt, velocity);
 
     positions = position_star;
+    std::cout << "FUCK FUCK FUCK " << std::endl;
 }
