@@ -3,6 +3,8 @@
 #include <kernels.h>
 #include <math.h>
 
+#include <iostream>
+
 void compute_lambda(
     Eigen::MatrixXd &positions,
     std::vector<int> &grid_result,

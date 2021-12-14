@@ -16,7 +16,7 @@ int num_iterations = 5;
 double pho0 = 8000;
 double epsilon = 10;
 double mass = 1.0;
-double h_kernel = 0.1;
+double h_kernel = cube_s;
 double k = 0.00;
 double delta_q = 0.003*h_kernel;
 double n_coor = 4;
@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
     bot_left.setZero();
     up_right << 2.0, 2.0, 2.0;
     
-    init_particles(positions, bot_left, up_right, 0.5);
+    init_particles(positions, bot_left, up_right, 0.2);
     velocity.resize(positions.rows(), 3);
     velocity.setZero();
 

@@ -76,14 +76,12 @@ void update_position(
                     tmp << delta_q, 0.0, 0.0;
                     double s_corr = -k * std::pow(poly6(r, h)/poly6(tmp, h), n_coor);
                     delta_position += (1/pho0) * (s_corr + lambdas(i)+lambdas(j)) * local_grad;
-                }
-
-                Eigen::Vector3d tmp;
-                tmp = (Eigen::Vector3d)positions.row(i) + delta_position;
-                apply_boundry(tmp, bot_left, up_right);
-                new_positions.row(i) = tmp;
-                
+                } 
             }
         }
     }
+    Eigen::Vector3d tmp;
+    tmp = (Eigen::Vector3d)positions.row(i) + delta_position;
+    apply_boundry(tmp, bot_left, up_right);
+    new_positions.row(i) = tmp;
 }
