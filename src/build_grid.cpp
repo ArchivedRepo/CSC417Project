@@ -15,7 +15,7 @@ int compute_index(
     }
     int h = int_pos(2) * (W * L);
     int w = int_pos(1) * L;
-    return h + int_pos(0);
+    return h + int_pos(0) + w;
 }
 
 
