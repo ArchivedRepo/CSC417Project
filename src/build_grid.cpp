@@ -59,9 +59,8 @@ void build_grid(
     for (int i = 0; i < N; i++) {
         std::tuple<int, int> this_tuple = grid_indices[i];
         int grid_index = std::get<0>(this_tuple);
-        int particle_index = std::get<0>(this_tuple);
         
-        assert(particle_index >= 0);
+        assert(grid_index >= 0);
         // grid index
         // cur_grid = 5
         // 0, 0, 0, 1, 4, 4, 5
