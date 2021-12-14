@@ -1,8 +1,6 @@
 #include <iostream>
 #include <thread>
-
-#include <assignment_setup.h>
-#include <visualization.h>
+#include <igl/opengl/glfw/Viewer.h>
 
 //simulation time and time step
 double t = 0; //simulation time 
@@ -21,12 +19,12 @@ bool simulation_callback() {
 
 int main(int argc, char **argv) {
 
-    std::cout<<"Start A6\n";
+    std::cout<<"Start Project\n";
 
     //setup libigl viewer and activate 
-    Visualize::setup(true);
-    Visualize::viewer().launch();
+    igl::opengl::glfw::Viewer viewer;
+    viewer.core().background_color.setConstant(1.0);
+    viewer.launch();
 
-    return 1; 
-
+    return 0;
 }
