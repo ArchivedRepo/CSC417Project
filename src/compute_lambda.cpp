@@ -1,6 +1,7 @@
 #include <compute_lambda.h>
 #include <build_grid.h>
 #include <kernels.h>
+#include <math.h>
 
 void compute_lambda(
     Eigen::MatrixXd &positions,
@@ -16,9 +17,9 @@ void compute_lambda(
     double mass, // mass of each particle
     int i // indicate which particle to compute
 ) {
-    int L = (up_right(0) - bot_left(0)) / cube_s;
-    int W = (up_right(1) - bot_left(1)) / cube_s;
-    int H = (up_right(2) - bot_left(2)) / cube_s;
+    int L = ceil((up_right(0) - bot_left(0)) / cube_s);
+    int W = ceil((up_right(1) - bot_left(1)) / cube_s);
+    int H = ceil((up_right(2) - bot_left(2)) / cube_s);
 
     int this_index = compute_index(positions.row(i), bot_left,
     L, W, H, cube_s);

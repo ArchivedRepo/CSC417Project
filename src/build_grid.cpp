@@ -38,9 +38,9 @@ void build_grid(
     Eigen::Vector3d &up_right,
     std::vector<std::tuple<int, int>> &grid_indices // tuple<grid_index, particle_index>
 ) {
-    int L = (up_right(0) - bot_left(0)) / cube_s;
-    int W = (up_right(1) - bot_left(1)) / cube_s;
-    int H = (up_right(2) - bot_left(2)) / cube_s;
+    int L = ceil((up_right(0) - bot_left(0)) / cube_s);
+    int W = ceil((up_right(1) - bot_left(1)) / cube_s);
+    int H = ceil((up_right(2) - bot_left(2)) / cube_s);
 
     int N = positions.rows();
     grid_indices.clear();
