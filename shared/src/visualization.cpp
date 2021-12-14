@@ -5,34 +5,6 @@ namespace Visualize {
 
     igl::opengl::glfw::Viewer g_viewer;
     igl::opengl::glfw::imgui::ImGuiMenu menu;
-    
-    //meshes in the scene 
-    std::vector<std::pair<Eigen::MatrixXd, Eigen::MatrixXi> > g_geometry;
-    std::vector<Eigen::RowVector3d> g_color;
-    std::vector<std::pair<Eigen::MatrixXd, Eigen::MatrixXi> > g_skin;
-    bool g_skinning = true;
-
-    std::vector<unsigned int> g_id; //id into libigl for these meshes 
-
-    //picking variables 
-    std::vector<unsigned int > g_picked_vertices;  
-    unsigned int g_selected_obj; 
-    
-    //pointers to q and qdot (I want to change this to functions that compute the current vertex positions)
-    Eigen::VectorXd const *g_q;
-    Eigen::VectorXd const *g_qdot;
-
-    //cache for phase space data 
-    std::deque<std::pair<float, float> > g_state;
-    std::deque<std::array<float, 4> > g_energy; //time, kinetic energy, potential energy
-
-    //mouse UI state variables
-    bool g_mouse_dragging = false;
-    double g_picking_tol = 0.001;
-    Eigen::Vector3d g_mouse_win; //mouse window coordinates
-    Eigen::Vector3d g_mouse_drag; //last mouse drag vector 
-    Eigen::Vector3d g_mouse_world; 
-    Eigen::Vector3d g_mouse_drag_world; //mouse drag delta in the world space 
 
 }
 
@@ -40,10 +12,7 @@ igl::opengl::glfw::imgui::ImGuiMenu & Visualize::viewer_menu() { return menu; }
 
 igl::opengl::glfw::Viewer & Visualize::viewer() { return g_viewer; }
 
-void Visualize::setup(const Eigen::VectorXd &q, const Eigen::VectorXd &qdot, bool ps_plot) {
-
-    g_q = &q;
-    g_qdot = &qdot;
+void Visualize::setup(bool ps_plot) {
 
     //add new menu for phase space plotting
     Visualize::g_viewer.plugins.push_back(&menu);
