@@ -1,6 +1,7 @@
 #include <update_position.h>
 #include <cmath>
 #include <kernels.h>
+#include <iostream>
 
 #define BOUND_LIMIT 1e-3
 
@@ -39,15 +40,24 @@ void update_position(
         Eigen::Vector3d r = positions.row(i)-positions.row(j);
         Eigen::Vector3d local_grad;
         spiky_grad(r, h_kernels, local_grad);
-        // Eigen::Vector3d tmp;
-        // tmp << delta_q, 0.0, 0.0;
-        // double s_corr = -k * std::pow(poly6(r, h_kernels)/poly6(tmp, h_kernels), n_coor);
-        delta_position += (1/pho0) * (lambdas(i)+lambdas(j)) * local_grad;
+        // std::cout << "local grad"<< local_grad(0) << std::endl;
+        // std::cout << "positions row  "<< positions.row(i) << std::endl;
+        Eigen::Vector3d tmp;
+        tmp << delta_q, 0.0, 0.0;
+        double s_corr = -k * std::pow(poly6(r, h_kernels)/poly6(tmp, h_kernels), n_coor);
+        if(j %20 == 0) std::cout << "spiky " <<local_grad(0) << std::endl;
+
+        delta_position += (1/pho0) * (s_corr+lambdas(i)+lambdas(j)) * local_grad;
     }
     Eigen::Vector3d tmp;
+    // std::cout << delta_position(0) << std::endl;
     tmp = (Eigen::Vector3d)positions.row(i) + delta_position;
     apply_boundry(tmp, bot_left, up_right);
     new_positions.row(i) = tmp;
+    // std::cout << "tmp " <<tmp << std::endl;
+    // std::cout << "delta " <<delta_position << std::endl;
+
+
 
     // int L = ceil((up_right(0) - bot_left(0)) / cube_s);
     // int W = ceil((up_right(1) - bot_left(1)) / cube_s);

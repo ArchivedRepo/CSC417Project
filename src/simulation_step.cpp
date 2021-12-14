@@ -39,17 +39,22 @@ void simulation_step(
     Eigen::MatrixXd tmp;
     tmp.resize(N, 3);
     for (int i = 0; i < num_iterations; i++) {
-        for (int idx=0; idx < N; idx++) { 
+        for (int idx=0; idx < N; idx++) {
+            
             compute_lambda(position_star, grid_result, cube_s, bot_left, up_right,
             grid_indices, lambdas, pho0, h_kernel, epsilon, mass, idx);
         }
         tmp.setZero();
         for (int idx=0; idx<N; idx++) {
+            // std::cout << "positions idx position before "<< position_star.row(idx) << std::endl;
             update_position(position_star, tmp, grid_result, cube_s, 
             bot_left, up_right, grid_indices, lambdas, pho0, h_kernel, epsilon,
             k, delta_q, n_coor, idx);
+            // std::cout << "positions idx tmp after "<< tmp.row(idx) << std::endl;
         }
         position_star = tmp;
+        std::cout << "================================" << std::endl;
+
     }
     update_velocity(positions, position_star, dt, velocity);
 

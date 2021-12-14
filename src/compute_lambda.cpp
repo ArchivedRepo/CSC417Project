@@ -26,6 +26,9 @@ void compute_lambda(
 
     for (int j = 0; j < positions.rows(); j++) {
         Eigen::Vector3d r = positions.row(i)-positions.row(j);
+        if (i %10 == 0){
+            // std::cout << "lambda i position "<< positions.row(i) << std::endl;
+        }
         pho += mass * poly6(r, h_kernel);
         Eigen::Vector3d local_grad;
         spiky_grad(r, h_kernel, local_grad);
@@ -38,6 +41,8 @@ void compute_lambda(
     double C_i = (pho / pho0) - 1.0;
     double denominator = gradient_sum + gradient_i.squaredNorm() + epsilon;
     lambdas(i) = - C_i / denominator;
+
+    // std::cout << lambdas(i) << std::endl;
 
     // int L = ceil((up_right(0) - bot_left(0)) / cube_s);
     // int W = ceil((up_right(1) - bot_left(1)) / cube_s);

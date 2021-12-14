@@ -11,7 +11,7 @@ Eigen::MatrixXd velocity;
 Eigen::Vector3d gravity(0.0, 0.0, -9.8);
 Eigen::Vector3d bot_left;
 Eigen::Vector3d up_right;
-double cube_s = 0.1;
+double cube_s = 10.0;
 int num_iterations = 5;
 double pho0 = 8000;
 double epsilon = 10;
@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 			case 'a':
 				//with ghost pressure
 				simulation_callback();
-                print_position(positions);
+                // print_position(positions);
                 Visualize::viewer().data().set_points(positions, particle_color);
 				break;
 			default:
