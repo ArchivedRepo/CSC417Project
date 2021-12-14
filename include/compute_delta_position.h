@@ -1,11 +1,10 @@
 #include <EigenTypes.h>
 
-void compute_lambda(
+void compute_delta_position(
     Eigen::MatrixXd &positions,
     double pho0,
-    double mass,
-    double epsilon,
     double h,
     Eigen::VectorXd &lambdas,
+    Eigen::MatrixXd &delta_positions,
     int i
 );

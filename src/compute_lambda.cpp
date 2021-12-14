@@ -8,7 +8,7 @@ void compute_lambda(
     double mass,
     double epsilon,
     double h,
-    Eigen::VectorXd lambdas,
+    Eigen::VectorXd &lambdas,
     int i
 ) {
     Eigen::Vector3d p_i = positions.row(i);
