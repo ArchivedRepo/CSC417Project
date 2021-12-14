@@ -33,55 +33,71 @@ void update_position(
     double n_coor, // n for compute tensile instability
     double i
 ) {
-    int L = ceil((up_right(0) - bot_left(0)) / cube_s);
-    int W = ceil((up_right(1) - bot_left(1)) / cube_s);
-    int H = ceil((up_right(2) - bot_left(2)) / cube_s);
-
-    int this_index = compute_index(positions.row(i), bot_left,
-    L, W, H, cube_s);
-    int x, y, h;
-    index_to_xyh(this_index, L, W, H, x, y, h);
-
     Eigen::Vector3d delta_position;
     delta_position.setZero();
-
-    for (int x_offset=-1; x_offset < 2; x_offset++ ) {
-        for (int y_offset=-1; y_offset<2; y_offset++) {
-            for (int h_offset=-1; h_offset<2; h_offset++) {
-                int cur_x, cur_y, cur_h, cur_index;
-                cur_x = x + x_offset;
-                cur_y = y + y_offset;
-                cur_h = h + h_offset;
-
-                if (cur_x < 0 || cur_y < 0 || cur_h < 0 || cur_x >= L || cur_y >= W || cur_h >= H) {
-                    continue;
-                }
-
-                xyh_to_index(cur_x, cur_y, cur_h, L, W, H, cur_index);
-                int start, end;
-                if (cur_index == 0) {
-                    start = 0;
-                    end = grid_result[0];
-                } else {
-                    start = grid_result[cur_index - 1];
-                    end = grid_result[cur_index];
-                }
-
-                for (int j = start; start < end; start++) {
-                    int cur_particle_idx = std::get<1>(grid_indices[j]);
-                    Eigen::Vector3d r = positions.row(i)-positions.row(j);
-                    Eigen::Vector3d local_grad;
-                    spiky_grad(r, h, local_grad);
-                    Eigen::Vector3d tmp;
-                    tmp << delta_q, 0.0, 0.0;
-                    double s_corr = -k * std::pow(poly6(r, h)/poly6(tmp, h), n_coor);
-                    delta_position += (1/pho0) * (s_corr + lambdas(i)+lambdas(j)) * local_grad;
-                } 
-            }
-        }
+    for (int j = 0; j < positions.rows(); j++) {
+        Eigen::Vector3d r = positions.row(i)-positions.row(j);
+        Eigen::Vector3d local_grad;
+        spiky_grad(r, h_kernels, local_grad);
+        // Eigen::Vector3d tmp;
+        // tmp << delta_q, 0.0, 0.0;
+        // double s_corr = -k * std::pow(poly6(r, h_kernels)/poly6(tmp, h_kernels), n_coor);
+        delta_position += (1/pho0) * (lambdas(i)+lambdas(j)) * local_grad;
     }
     Eigen::Vector3d tmp;
     tmp = (Eigen::Vector3d)positions.row(i) + delta_position;
     apply_boundry(tmp, bot_left, up_right);
     new_positions.row(i) = tmp;
+
+    // int L = ceil((up_right(0) - bot_left(0)) / cube_s);
+    // int W = ceil((up_right(1) - bot_left(1)) / cube_s);
+    // int H = ceil((up_right(2) - bot_left(2)) / cube_s);
+
+    // int this_index = compute_index(positions.row(i), bot_left,
+    // L, W, H, cube_s);
+    // int x, y, h;
+    // index_to_xyh(this_index, L, W, H, x, y, h);
+
+    // Eigen::Vector3d delta_position;
+    // delta_position.setZero();
+
+    // for (int x_offset=-1; x_offset < 2; x_offset++ ) {
+    //     for (int y_offset=-1; y_offset<2; y_offset++) {
+    //         for (int h_offset=-1; h_offset<2; h_offset++) {
+    //             int cur_x, cur_y, cur_h, cur_index;
+    //             cur_x = x + x_offset;
+    //             cur_y = y + y_offset;
+    //             cur_h = h + h_offset;
+
+    //             if (cur_x < 0 || cur_y < 0 || cur_h < 0 || cur_x >= L || cur_y >= W || cur_h >= H) {
+    //                 continue;
+    //             }
+
+    //             xyh_to_index(cur_x, cur_y, cur_h, L, W, H, cur_index);
+    //             int start, end;
+    //             if (cur_index == 0) {
+    //                 start = 0;
+    //                 end = grid_result[0];
+    //             } else {
+    //                 start = grid_result[cur_index - 1];
+    //                 end = grid_result[cur_index];
+    //             }
+
+    //             for (int j = start; start < end; start++) {
+    //                 int cur_particle_idx = std::get<1>(grid_indices[j]);
+    //                 Eigen::Vector3d r = positions.row(i)-positions.row(j);
+    //                 Eigen::Vector3d local_grad;
+    //                 spiky_grad(r, h, local_grad);
+    //                 Eigen::Vector3d tmp;
+    //                 tmp << delta_q, 0.0, 0.0;
+    //                 double s_corr = -k * std::pow(poly6(r, h)/poly6(tmp, h), n_coor);
+    //                 delta_position += (1/pho0) * (s_corr + lambdas(i)+lambdas(j)) * local_grad;
+    //             } 
+    //         }
+    //     }
+    // }
+    // Eigen::Vector3d tmp;
+    // tmp = (Eigen::Vector3d)positions.row(i) + delta_position;
+    // apply_boundry(tmp, bot_left, up_right);
+    // new_positions.row(i) = tmp;
 }

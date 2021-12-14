@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
     bot_left.setZero();
     up_right << 2.0, 2.0, 2.0;
     
-    init_particles(positions, bot_left, up_right, 0.2);
+    init_particles(positions, bot_left, up_right, 0.5);
     velocity.resize(positions.rows(), 3);
     velocity.setZero();
 
