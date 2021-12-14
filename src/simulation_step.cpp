@@ -51,10 +51,5 @@ void simulation_step(
     // }
     // update_velocity(positions, position_star, dt, velocity);
 
-    for (int i = 0; i < position_star.rows(); i++){
-        Eigen::Vector3d t = position_star.row(i);
-        apply_boundry(t, bot_left, up_right);
-        position_star.row(i) = t.transpose();
-    }
     positions = position_star;
 }
