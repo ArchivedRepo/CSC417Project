@@ -26,10 +26,10 @@ void simulation_step(
     Eigen::MatrixXd position_star;
     advect(velocity, positions, position_star, gravity, dt);
 
-    // std::vector<int> grid_result;
-    // std::vector<std::tuple<int, int>> grid_indices;
+    std::vector<int> grid_result;
+    std::vector<std::tuple<int, int>> grid_indices;
 
-    // build_grid(position_star, grid_result, cube_s, bot_left, up_right, grid_indices);
+    build_grid(position_star, grid_result, cube_s, bot_left, up_right, grid_indices);
     // Eigen::VectorXd lambdas;
     // lambdas.resize(positions.rows());
     // lambdas.setZero();
@@ -50,5 +50,11 @@ void simulation_step(
     //     position_star = tmp;
     // }
     // update_velocity(positions, position_star, dt, velocity);
+
+    for (int i = 0; i < position_star.rows(); i++){
+        Eigen::Vector3d t = position_star.row(i);
+        apply_boundry(t, bot_left, up_right);
+        position_star.row(i) = t.transpose();
+    }
     positions = position_star;
 }
