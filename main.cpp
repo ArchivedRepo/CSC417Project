@@ -3,9 +3,15 @@
 #include <igl/opengl/glfw/Viewer.h>
 
 #include <init_particles.h>
+#include <gravity_matrix.h>
 
 Eigen::MatrixXd positions;
 double particle_init_step = 0.2;
+
+
+
+//constants
+Eigen::MatrixXd gravity_m;
 
 //simulation time and time step
 double t = 0; //simulation time 
@@ -38,6 +44,10 @@ int main(int argc, char **argv) {
     20, 30, 10);
     viewer.data().set_points(positions, particle_color);
     viewer.data().point_size = 10.0;
+
+    Eigen::Vector3d g_v;
+    g_v << 0.0, -0.98, 0.0;
+    gravity_matrix(gravity_m, g_v, positions.rows());
 
     viewer.launch();
 
