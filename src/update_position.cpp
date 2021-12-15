@@ -19,12 +19,12 @@ static void apply_boundry(
     }
 
     if (y != result(1)){
-        result(1) = x;
+        result(1) = y;
         velocity(1) = 0.0;
     }
 
     if (z != result(2)){
-        result(2) = x;
+        result(2) = z;
         velocity(2) = 0.0;
     }
 

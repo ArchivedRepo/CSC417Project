@@ -61,7 +61,7 @@ void build_grid(
         // cur_grid = 5
         // 0, 0, 0, 1, 4, 4, 5
         // 0, 1, 2, 3, 4, 5, 6
-        // 3, 4, 4, 6
+        // 3, 4, 4, 6, 7
         if (grid_index == cur_grid + 1) {
             result.push_back(i);
             cur_grid += 1;
