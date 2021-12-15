@@ -2,6 +2,5 @@
 
 void update_positions(
     Eigen::MatrixXd &positions,
-    Eigen::MatrixXd &delta_positions,
-    double dt
+    Eigen::MatrixXd &delta_positions
 );
