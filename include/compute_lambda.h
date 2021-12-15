@@ -7,5 +7,6 @@ void compute_lambda(
     double epsilon,
     double h,
     Eigen::VectorXd &lambdas,
+    Eigen::VectorXd &phos,
     int i
 );

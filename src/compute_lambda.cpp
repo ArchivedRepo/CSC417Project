@@ -9,6 +9,7 @@ void compute_lambda(
     double epsilon,
     double h,
     Eigen::VectorXd &lambdas,
+    Eigen::VectorXd &phos,
     int i
 ) {
     Eigen::Vector3d p_i = positions.row(i);
@@ -32,4 +33,5 @@ void compute_lambda(
     double C_i = (pho/pho0) - 1.0;
     double denominator = grad_sum + (1.0/pho0)*(1.0/pho0)*grad_i.squaredNorm();
     lambdas(i) =-C_i / (denominator+epsilon);
+    phos(i) = pho;
 }

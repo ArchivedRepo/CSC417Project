@@ -6,9 +6,9 @@
 static void apply_boundry(
     Eigen::Vector3d &result
 ){
-    result(0) = std::max(std::min(result(0), 3.0 - BOUND_LIMIT), 0.0 + BOUND_LIMIT);
+    // result(0) = std::max(std::min(result(0), 3.0 - BOUND_LIMIT), 0.0 + BOUND_LIMIT);
     result(1) = std::max(std::min(result(1), 3.0 - BOUND_LIMIT), 0.0 + BOUND_LIMIT);
-    result(2) = std::max(std::min(result(2), 3.0 - BOUND_LIMIT), 0.0 + BOUND_LIMIT);
+    // result(2) = std::max(std::min(result(2), 3.0 - BOUND_LIMIT), 0.0 + BOUND_LIMIT);
 }
 
 

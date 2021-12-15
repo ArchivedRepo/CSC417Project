@@ -4,6 +4,7 @@
 #include <compute_delta_position.h>
 #include <update_position.h>
 #include <update_velocity.h>
+#include <viscosity_confinement.h>
 
 void simulation_step(
     Eigen::MatrixXd &positions,
@@ -26,19 +27,27 @@ void simulation_step(
     lambdas.setZero();
     Eigen::MatrixXd delta_positions(positions.rows(), 3);
 
+    Eigen::VectorXd phos;
+    phos.resize(positions.rows());
+    phos.setZero();
+
     for (int iter = 0; iter < num_iteration; iter++) {
         for (int i = 0; i < positions.rows(); i++) {
-            compute_lambda(
-                positions_star, pho0, mass, epsilon, h, lambdas, i);
+            compute_lambda(positions_star, pho0, mass, epsilon, h, lambdas, phos, i);
         }
+
         for (int i=0;i <positions_star.rows(); i++) {
-            compute_delta_position(positions_star, pho0, h, lambdas,
-            delta_positions, i);
+            compute_delta_position(positions_star, pho0, h, lambdas, delta_positions, i);
         }
+
         update_positions(positions_star, delta_positions);
-    }
-    for (int i=0;i <positions_star.rows(); i++) {
+
         update_velocity(positions, positions_star, velocity, dt);
+
+        for (int i=0;i <positions_star.rows(); i++) {
+            viscosity_confinement(positions_star, velocity, phos, h, i);
+        }
+        
     }
     positions = positions_star;
 }
