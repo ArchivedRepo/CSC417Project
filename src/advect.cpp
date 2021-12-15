@@ -1,6 +1,8 @@
 #include <advect.h>
 #include <iostream>
 
+#define BOUND_LIMIT 1e-3
+
 void advect(
     Eigen::MatrixXd &velocity,
     Eigen::MatrixXd &p0,

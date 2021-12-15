@@ -11,6 +11,7 @@ void compute_lambda(
     Eigen::Vector3d &up_right,
     std::vector<std::tuple<int, int>> &grid_indices,
     Eigen::VectorXd &lambdas, // assume caller has already resize this
+    Eigen::VectorXd &phos,
     double pho0,
     double h_kernel, // smooth kernel parameter
     double epsilon,

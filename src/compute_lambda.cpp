@@ -13,6 +13,7 @@ void compute_lambda(
     Eigen::Vector3d &up_right,
     std::vector<std::tuple<int, int>> &grid_indices,
     Eigen::VectorXd &lambdas, // assume caller has already resize this
+    Eigen::VectorXd &phos,
     double pho0,
     double h_kernel, // smooth kernel parameter
     double epsilon,
@@ -20,82 +21,36 @@ void compute_lambda(
     int i // indicate which particle to compute
 ) {
     double pho = 0.0;
-    Eigen::Vector3d gradient_i;
-    gradient_i.setZero();
-    double gradient_sum = 0.0;
 
-    for (int j = 0; j < positions.rows(); j++) {
-        Eigen::Vector3d r = positions.row(i)-positions.row(j);
-        if (i %10 == 0){
-            // std::cout << "lambda i position "<< positions.row(i) << std::endl;
-        }
-        pho += mass * poly6(r, h_kernel);
-        Eigen::Vector3d local_grad;
-        spiky_grad(r, h_kernel, local_grad);
-        local_grad /= pho0;
-        gradient_i += local_grad;
-        if (j != i) {
-            gradient_sum += local_grad.squaredNorm();
+    Eigen::Vector3d curr_pos = positions.row(i);
+
+    Eigen::Vector3d grad_C_j_not_same;
+    Eigen::Vector3d grad_same;
+
+    grad_C_j_not_same.setZero();
+    grad_same.setZero();
+
+    Eigen::Vector3d result;
+
+    for (int j = 0; j < positions.rows(); j++){
+        Eigen::Vector3d delta_r = curr_pos - (Eigen::Vector3d) positions.row(j);
+
+        pho += poly6(delta_r, h_kernel);
+        spiky_grad(delta_r, h_kernel, result);
+
+        grad_same += result;
+
+        if (i != j){
+            spiky_grad(delta_r, h_kernel, result);
+            grad_C_j_not_same -= result /pho0;
         }
     }
-    double C_i = (pho / pho0) - 1.0;
-    double denominator = gradient_sum + gradient_i.squaredNorm() + epsilon;
-    lambdas(i) = - C_i / denominator;
+    grad_same /= pho0;
 
-    // std::cout << lambdas(i) << std::endl;
+    double Ci = (pho /pho0) - 1;
+    double lambdai = -Ci / (grad_same.norm() + grad_C_j_not_same.norm() + epsilon);
 
-    // int L = ceil((up_right(0) - bot_left(0)) / cube_s);
-    // int W = ceil((up_right(1) - bot_left(1)) / cube_s);
-    // int H = ceil((up_right(2) - bot_left(2)) / cube_s);
-
-    // int this_index = compute_index(positions.row(i), bot_left,
-    // L, W, H, cube_s);
-    // int x, y, h;
-    // index_to_xyh(this_index, L, W, H, x, y, h);
-
-    // double pho = 0.0;
-    // Eigen::Vector3d gradient_i;
-    // double gradient_sum;
-
-    // for (int x_offset=-1; x_offset < 2; x_offset++ ) {
-    //     for (int y_offset=-1; y_offset<2; y_offset++) {
-    //         for (int h_offset=-1; h_offset<2; h_offset++) {
-    //             int cur_x, cur_y, cur_h, cur_index;
-    //             cur_x = x + x_offset;
-    //             cur_y = y + y_offset;
-    //             cur_h = h + h_offset;
-
-    //             if (cur_x < 0 || cur_y < 0 || cur_h < 0 || cur_x >= L || cur_y >= W || cur_h >= H) {
-    //                 continue;
-    //             }
-
-    //             xyh_to_index(cur_x, cur_y, cur_h, L, W, H, cur_index);
-    //             int start, end;
-    //             if (cur_index == 0) {
-    //                 start = 0;
-    //                 end = grid_result[0];
-    //             } else {
-    //                 start = grid_result[cur_index - 1];
-    //                 end = grid_result[cur_index];
-    //             }
-
-    //             for (int j = start; start < end; start++) {
-    //                 int cur_particle_idx = std::get<1>(grid_indices[j]);
-    //                 Eigen::Vector3d r = positions.row(i)-positions.row(j);
-    //                 pho += mass * poly6(r, h);
-    //                 Eigen::Vector3d local_grad;
-    //                 spiky_grad(r, h, local_grad);
-    //                 local_grad /= pho0;
-    //                 gradient_i += local_grad;
-    //                 if (j != i) {
-    //                     gradient_sum += local_grad.squaredNorm();
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-    // double C_i = (pho / pho0) - 1.0;
-    // double denominator = gradient_sum + gradient_i.squaredNorm() + epsilon;
-    // lambdas(i) = - C_i / denominator;
+    lambdas(i) = lambdai;
+    phos(i) = pho;
 
 }

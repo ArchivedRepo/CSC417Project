@@ -3,7 +3,8 @@
 
 void update_velocity(
     Eigen::MatrixXd &positions,
-    Eigen::MatrixXd &new_positions,
-    double dt,
-    Eigen::MatrixXd &velocity
+    Eigen::MatrixXd &velocity,
+    Eigen::VectorXd &phos,
+    double h, 
+    int &index
 );

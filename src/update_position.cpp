@@ -8,13 +8,31 @@
 // Apply boundry condition, squeeze the particle back into the box if it goes out
 // of bound.
 static void apply_boundry(
-    Eigen::Vector3d &result, 
-    Eigen::Vector3d bot_left, 
-    Eigen::Vector3d up_right
+    Eigen::MatrixXd &positions, 
+    Eigen::MatrixXd &velocity,
+    Eigen::Vector3d bot_left,
+    Eigen::Vector3d up_right,
+    int i
 ){
-        result(0) = std::max(std::min(result(0), up_right(0) - BOUND_LIMIT), bot_left(0) + BOUND_LIMIT);
-        result(1) = std::max(std::min(result(1), up_right(1) - BOUND_LIMIT), bot_left(1) + BOUND_LIMIT);
-        result(2) = std::max(std::min(result(2), up_right(2) - BOUND_LIMIT), bot_left(2) + BOUND_LIMIT);
+        
+    double x = std::min(std::max(positions(i, 0), bot_left(0) + BOUND_LIMIT), up_right(0) - BOUND_LIMIT);
+    double y = std::min(std::max(positions(i, 1), bot_left(1) + BOUND_LIMIT), up_right(1) - BOUND_LIMIT);
+    double z = std::min(std::max(positions(i, 2), bot_left(2) + BOUND_LIMIT), up_right(2) - BOUND_LIMIT);
+
+    if (x != positions(i, 0)){
+        // positions(i, 0) = x;
+        velocity(i, 0) = 0.0;
+    }
+
+    if (y != positions(i, 1)){
+        positions(i, 1) = y;
+        velocity(i, 1) = 0.0;
+    }
+
+    if (z != positions(i, 2)){
+        positions(i, 2) = z;
+        velocity(i, 2) = 0.0;
+    }
 }
 
 void update_position(
@@ -26,6 +44,7 @@ void update_position(
     Eigen::Vector3d &up_right,
     std::vector<std::tuple<int, int>> &grid_indices,
     Eigen::VectorXd &lambdas,
+    Eigen::MatrixXd &velocity,
     double pho0,
     double h_kernels,
     double epsilon,
@@ -34,80 +53,32 @@ void update_position(
     double n_coor, // n for compute tensile instability
     double i
 ) {
-    Eigen::Vector3d delta_position;
-    delta_position.setZero();
-    for (int j = 0; j < positions.rows(); j++) {
-        Eigen::Vector3d r = positions.row(i)-positions.row(j);
-        Eigen::Vector3d local_grad;
-        spiky_grad(r, h_kernels, local_grad);
-        // std::cout << "local grad"<< local_grad(0) << std::endl;
-        // std::cout << "positions row  "<< positions.row(i) << std::endl;
-        Eigen::Vector3d tmp;
-        tmp << delta_q, 0.0, 0.0;
-        double s_corr = -k * std::pow(poly6(r, h_kernels)/poly6(tmp, h_kernels), n_coor);
-        if(j %20 == 0) std::cout << "spiky " <<local_grad(0) << std::endl;
+    Eigen::Vector3d delta_p;
+    delta_p.setZero();
 
-        delta_position += (1/pho0) * (s_corr+lambdas(i)+lambdas(j)) * local_grad;
+    Eigen::Vector3d curr_pos = positions.row(i);
+
+    double curr_lambda = lambdas(i);
+
+    Eigen::Vector3d result;
+    
+    Eigen::Vector3d proxy;
+    proxy.setZero();
+    proxy(0) = delta_q;
+
+    for(int j = 0; j < positions.rows(); j++){
+        Eigen::Vector3d delta_pos = curr_pos - (Eigen::Vector3d) positions.row(j);
+
+        spiky_grad(delta_pos, h_kernels, result);
+        if (result(0) < 1e-14 && j % 24 == 0){
+            // std::cout << (Eigen::RowVector3d) curr_pos << "|"<< (Eigen::RowVector3d)  positions.row(j) << " " <<std::endl;
+        }
+        double s_corr = -k * pow(poly6(delta_pos, h_kernels)/poly6(proxy, h_kernels), n_coor);
+        delta_p += (curr_lambda + lambdas(j) + s_corr) * result;
     }
-    Eigen::Vector3d tmp;
-    // std::cout << delta_position(0) << std::endl;
-    tmp = (Eigen::Vector3d)positions.row(i) + delta_position;
-    apply_boundry(tmp, bot_left, up_right);
-    new_positions.row(i) = tmp;
-    // std::cout << "tmp " <<tmp << std::endl;
-    // std::cout << "delta " <<delta_position << std::endl;
 
+    delta_p /= pho0;
+    new_positions.row(i) = positions.row(i) + (Eigen::RowVector3d) delta_p;
 
-
-    // int L = ceil((up_right(0) - bot_left(0)) / cube_s);
-    // int W = ceil((up_right(1) - bot_left(1)) / cube_s);
-    // int H = ceil((up_right(2) - bot_left(2)) / cube_s);
-
-    // int this_index = compute_index(positions.row(i), bot_left,
-    // L, W, H, cube_s);
-    // int x, y, h;
-    // index_to_xyh(this_index, L, W, H, x, y, h);
-
-    // Eigen::Vector3d delta_position;
-    // delta_position.setZero();
-
-    // for (int x_offset=-1; x_offset < 2; x_offset++ ) {
-    //     for (int y_offset=-1; y_offset<2; y_offset++) {
-    //         for (int h_offset=-1; h_offset<2; h_offset++) {
-    //             int cur_x, cur_y, cur_h, cur_index;
-    //             cur_x = x + x_offset;
-    //             cur_y = y + y_offset;
-    //             cur_h = h + h_offset;
-
-    //             if (cur_x < 0 || cur_y < 0 || cur_h < 0 || cur_x >= L || cur_y >= W || cur_h >= H) {
-    //                 continue;
-    //             }
-
-    //             xyh_to_index(cur_x, cur_y, cur_h, L, W, H, cur_index);
-    //             int start, end;
-    //             if (cur_index == 0) {
-    //                 start = 0;
-    //                 end = grid_result[0];
-    //             } else {
-    //                 start = grid_result[cur_index - 1];
-    //                 end = grid_result[cur_index];
-    //             }
-
-    //             for (int j = start; start < end; start++) {
-    //                 int cur_particle_idx = std::get<1>(grid_indices[j]);
-    //                 Eigen::Vector3d r = positions.row(i)-positions.row(j);
-    //                 Eigen::Vector3d local_grad;
-    //                 spiky_grad(r, h, local_grad);
-    //                 Eigen::Vector3d tmp;
-    //                 tmp << delta_q, 0.0, 0.0;
-    //                 double s_corr = -k * std::pow(poly6(r, h)/poly6(tmp, h), n_coor);
-    //                 delta_position += (1/pho0) * (s_corr + lambdas(i)+lambdas(j)) * local_grad;
-    //             } 
-    //         }
-    //     }
-    // }
-    // Eigen::Vector3d tmp;
-    // tmp = (Eigen::Vector3d)positions.row(i) + delta_position;
-    // apply_boundry(tmp, bot_left, up_right);
-    // new_positions.row(i) = tmp;
+    // apply_boundry(new_positions, velocity, bot_left, up_right, i);
 }

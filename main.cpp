@@ -11,19 +11,19 @@ Eigen::MatrixXd velocity;
 Eigen::Vector3d gravity(0.0, 0.0, -9.8);
 Eigen::Vector3d bot_left;
 Eigen::Vector3d up_right;
-double cube_s = 10.0;
-int num_iterations = 5;
-double pho0 = 8000;
-double epsilon = 10;
+double cube_s = 1;
+int num_iterations = 4;
+double pho0 = 8000.0;
+double epsilon = 1000.0;
 double mass = 1.0;
 double h_kernel = cube_s;
-double k = 0.00;
-double delta_q = 0.003*h_kernel;
+double k = 0.001;
+double delta_q = 0.7*h_kernel;
 double n_coor = 4;
 
 //simulation time and time step
 double t = 0; //simulation time 
-double dt = 0.001; //time step
+double dt = 0.1; //time step
 
 //simulation loop
 bool simulating = true;

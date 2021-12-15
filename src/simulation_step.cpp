@@ -24,40 +24,40 @@ void simulation_step(
     double delta_q,
     double n_coor
 ) {
-    int N = positions.rows();
-    Eigen::MatrixXd position_star;
-    advect(velocity, positions, position_star, gravity, dt);
+    Eigen::MatrixXd new_position;
+    new_position.resize(positions.rows(), 3);
+    std::vector<std::tuple<int, int>> grid;
+    std::vector<int> result;
 
-    std::vector<int> grid_result;
-    std::vector<std::tuple<int, int>> grid_indices;
+    advect(velocity, positions, new_position,gravity, dt);
 
-    build_grid(position_star, grid_result, cube_s, bot_left, up_right, grid_indices);
     Eigen::VectorXd lambdas;
-    lambdas.resize(positions.rows());
+    lambdas.resize(new_position.rows());
     lambdas.setZero();
 
-    Eigen::MatrixXd tmp;
-    tmp.resize(N, 3);
-    for (int i = 0; i < num_iterations; i++) {
-        for (int idx=0; idx < N; idx++) {
-            
-            compute_lambda(position_star, grid_result, cube_s, bot_left, up_right,
-            grid_indices, lambdas, pho0, h_kernel, epsilon, mass, idx);
-        }
-        tmp.setZero();
-        for (int idx=0; idx<N; idx++) {
-            // std::cout << "positions idx position before "<< position_star.row(idx) << std::endl;
-            update_position(position_star, tmp, grid_result, cube_s, 
-            bot_left, up_right, grid_indices, lambdas, pho0, h_kernel, epsilon,
-            k, delta_q, n_coor, idx);
-            // std::cout << "positions idx tmp after "<< tmp.row(idx) << std::endl;
-        }
-        position_star = tmp;
-        std::cout << "================================" << std::endl;
+    Eigen::VectorXd phos;
+    phos.resize(new_position.rows());
+    phos.setZero();
 
+    for (int iteration = 0; iteration < 2; iteration++){
+
+        std::cout << "==============================" << iteration << "==========================" << std::endl;
+        std::cout << "position before 0 " << positions.row(0) << std::endl;
+        for (int i = 0; i < positions.rows(); i++){
+            compute_lambda(positions, result, cube_s, bot_left, up_right, grid, lambdas, phos, pho0, h_kernel, epsilon, mass, i);
+        }
+        std::cout << "position after 1 " << positions.row(0) << std::endl;
+        for (int i = 0; i < positions.rows(); i++){
+            update_position(positions, new_position, result, cube_s, bot_left, up_right, grid, lambdas, velocity, pho0, h_kernel, epsilon, k, delta_q, n_coor, i);
+        }
+        std::cout << "position before 2 " << new_position.row(0) << std::endl;
+        for (int i = 0; i < positions.rows(); i++){
+            velocity.row(i) = (new_position.row(i) - positions.row(i))/dt;
+            update_velocity(positions, velocity, phos, h_kernel, i);
+        }
+        std::cout << "position after 3 " << new_position.row(0) << std::endl;
+
+        positions = new_position;
     }
-    update_velocity(positions, position_star, dt, velocity);
 
-    positions = position_star;
-    std::cout << "FUCK FUCK FUCK " << std::endl;
 }

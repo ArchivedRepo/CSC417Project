@@ -13,6 +13,7 @@ void update_position(
     Eigen::Vector3d &up_right,
     std::vector<std::tuple<int, int>> &grid_indices,
     Eigen::VectorXd &lambdas,
+    Eigen::MatrixXd &velocity,
     double pho0,
     double h_kernels,
     double epsilon,
