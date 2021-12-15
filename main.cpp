@@ -21,8 +21,8 @@ Eigen::Vector3d sim_space_top_right;
 //simulation time and time step
 double t = 0; //simulation time 
 double dt = 0.0083; //time step
-double cube_s = 4.0;
-double h = 0.9 * cube_s;
+double cube_s = 0.1;
+double h = 0.3 * cube_s;
 double mass = 1.0;
 double pho0 = 8000.0;
 double epsilon = 1000;
