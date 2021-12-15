@@ -28,7 +28,7 @@ bool simulating = true;
 
 bool simulation_callback() {
 
-    for (int z = 0; z < 5; z++){
+    for (int z = 0; z < 10; z++){
         simulation_step(positions, velocity, gravity_m, dt, h, mass, pho0,epsilon, num_iteration);
         const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
         viewer.data().set_points(positions, particle_color);
