@@ -14,6 +14,10 @@ igl::opengl::glfw::Viewer viewer;
 //constants
 Eigen::MatrixXd gravity_m;
 
+Eigen::Vector3d sim_space_bot_left;
+Eigen::Vector3d sim_space_top_right;
+
+
 //simulation time and time step
 double t = 0; //simulation time 
 double dt = 0.01; //time step
@@ -29,7 +33,18 @@ bool simulating = true;
 bool simulation_callback() {
 
     for (int z = 0; z < 10; z++){
-        simulation_step(positions, velocity, gravity_m, dt, h, mass, pho0,epsilon, num_iteration);
+        simulation_step(
+            positions, 
+            velocity, 
+            gravity_m, 
+            sim_space_bot_left, 
+            sim_space_top_right, 
+            dt, 
+            h,
+            mass, 
+            pho0, 
+            epsilon, 
+            num_iteration);
         const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
         viewer.data().set_points(positions, particle_color);
         std::cout << "Complete a step" << std::endl;
@@ -48,8 +63,14 @@ int main(int argc, char **argv) {
 
 
     Eigen::Vector3d particle_init_bot_left;
-    particle_init_bot_left << 0.1, 0.1, 0.1;
+    particle_init_bot_left << 2.0, 2.0, 2.0;
+
+    sim_space_bot_left << 0.0, 0.0, 0.0;
+    sim_space_top_right << 4.0, 4.0, 4.0;
+
+
     const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
+
     init_particles(positions, particle_init_bot_left, particle_init_step, 
     10, 10, 10);
     velocity.resize(positions.rows(), 3);
