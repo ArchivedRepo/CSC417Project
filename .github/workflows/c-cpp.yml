@@ -14,11 +14,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
         config: [Release]
         include:
-          - os: macos-latest
-            name: macOS
           - os: ubuntu-latest
             name: Linux
 
@@ -46,13 +44,6 @@ jobs:
             libx11-dev \
             libxinerama1 libxinerama-dev \
             libxcursor-dev libxrandr-dev libxi-dev libxmu-dev \
-
-      - name: Dependencies (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew update
-          brew info git || brew install git
-          brew info cmake || brew install cmake
 
       - name: Configure
         run: |
