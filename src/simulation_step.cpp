@@ -37,8 +37,6 @@ void simulation_step(
         }
         update_positions(positions_star, delta_positions);
     }
-    for (int i=0;i <positions_star.rows(); i++) {
-        update_velocity(positions, positions_star, velocity, dt);
-    }
+    update_velocity(positions, positions_star, velocity, dt);
     positions = positions_star;
 }

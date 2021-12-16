@@ -15,6 +15,7 @@ void compute_lambda(
 
     double pho = 0.0;
     Eigen::Vector3d grad_i;
+    grad_i.setZero();
     double grad_sum = 0.0;
     for (int j = 0; j < positions.rows(); j++) {
         Eigen::Vector3d p_j = positions.row(j);

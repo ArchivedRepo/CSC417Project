@@ -28,12 +28,12 @@ bool simulating = true;
 
 bool simulation_callback() {
 
-    while (simulating) {
-        simulation_step(positions, velocity, gravity_m, dt, h, mass, pho0,epsilon, num_iteration);
-        const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
-        viewer.data().set_points(positions, particle_color);
-        std::cout << "Complete a step" << std::endl;
-    }
+    // while (simulating) {
+    simulation_step(positions, velocity, gravity_m, dt, h, mass, pho0,epsilon, num_iteration);
+    const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
+    viewer.data().set_points(positions, particle_color);
+    std::cout << "Complete a step" << std::endl;
+    // }
     return true;
 }
 
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 			case 'A':
 			case 'a':
 				//with ghost pressure
-				simulating = !simulating;
+				simulation_callback();
 				break;
 			default:
 				return false;
