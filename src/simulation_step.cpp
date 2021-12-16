@@ -40,8 +40,8 @@ void simulation_step(
     }
     update_velocity(positions, positions_star, velocity, dt);
     
-    for (int i = 0; i < velocity.rows(); i++){
-        viscosity_confinement(positions_star, velocity, h, i);
-    }
+    // for (int i = 0; i < velocity.rows(); i++){
+    //     viscosity_confinement(positions_star, velocity, h, i);
+    // }
     positions = positions_star;
 }
