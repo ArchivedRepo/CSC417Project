@@ -19,7 +19,11 @@ void compute_delta_position(
         
         Eigen::Vector3d local_grad;
         spiky_grad(diff, h, local_grad);
-        tmp += (lambdas(i)+lambdas(j)) * local_grad;
+
+        double s_corr = -0.1 * pow(poly6(diff.norm(), h) / poly6(0.1 * h, h), 4.0);
+        // double s_corr = 0.0;
+
+        tmp += (lambdas(i)+lambdas(j) + s_corr) * local_grad;
     }
     delta_positions.row(i) = (1/pho0) * tmp;
 }
