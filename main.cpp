@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
     const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
 
     init_particles(positions, particle_init_bot_left, particle_init_step, 
-    10, 10, 10);
+    20, 20, 20);
     velocity.resize(positions.rows(), 3);
     velocity.setZero();
     viewer.data().set_points(positions, particle_color);

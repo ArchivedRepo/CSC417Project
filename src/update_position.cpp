@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <iostream>
 
-#define BOUND_LIMIT 0.01
+#define BOUND_LIMIT 1e-3
 
 static void apply_boundry(
     Eigen::Vector3d &result,
@@ -41,7 +41,7 @@ void update_positions(
     positions = positions + delta_positions;
     for (int i = 0; i < positions.rows(); i++) {
         Eigen::Vector3d tmp = positions.row(i);
-        Eigen::Vector3d tmp_v = positions.row(i);
+        Eigen::Vector3d tmp_v = velocity.row(i);
         apply_boundry(tmp, tmp_v, bottom_left, top_right);
         positions.row(i) = tmp;
         velocity.row(i) = tmp_v;

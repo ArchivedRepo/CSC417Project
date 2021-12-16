@@ -10,7 +10,7 @@ double poly6(double r, double h) {
 
 void spiky_grad(Eigen::Vector3d &r, double h, Eigen::Vector3d &grad) {
     double norm = r.norm();
-    if (norm > 1e-3 && norm <= h) {
+    if (norm > 0 && norm <= h) {
         grad = r.normalized() * (-(45.0 * pow(norm - h, 2.0)) / (M_PI * pow(h, 6.0))); 
     } else {
         grad.setZero();

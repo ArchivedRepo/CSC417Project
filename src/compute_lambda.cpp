@@ -30,6 +30,7 @@ void compute_lambda(
 
     double pho = 0.0;
     Eigen::Vector3d grad_i;
+    grad_i.setZero();
     double grad_sum = 0.0;
     for (int x_offset = -1 ; x_offset < 2; x_offset++ ) {
         for (int y_offset = -1; y_offset < 2; y_offset++) {
@@ -65,11 +66,12 @@ void compute_lambda(
                     pho += mass * poly6(diff.norm(), h);
 
                     Eigen::Vector3d local_grad;
+                    local_grad.setZero();
                     spiky_grad(diff, h, local_grad);
                     grad_i += local_grad;
 
                     if (target_id != i) {
-                        grad_sum += (1.0/pho0)*(1.0/pho0) * local_grad.squaredNorm();
+                        grad_sum += (1.0/pho0) * (1.0/pho0) * local_grad.squaredNorm();
                     }
                 }
 
@@ -78,6 +80,6 @@ void compute_lambda(
     }
 
     double C_i = (pho/pho0) - 1.0;
-    double denominator = grad_sum + (1.0/pho0)*(1.0/pho0)*grad_i.squaredNorm();
+    double denominator = grad_sum + (1.0/pho0) * (1.0/pho0) * grad_i.squaredNorm();
     lambdas(i) =-C_i / (denominator + epsilon);
 }

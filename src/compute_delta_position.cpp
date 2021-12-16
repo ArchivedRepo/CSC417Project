@@ -1,6 +1,7 @@
 #include <compute_delta_position.h>
 #include <kernels.h>
 #include <build_grid.h>
+#include <iostream>
 
 void compute_delta_position(
     Eigen::MatrixXd &positions,
@@ -29,6 +30,23 @@ void compute_delta_position(
 
     Eigen::Vector3d tmp;
     tmp.setZero();
+
+    // debug code segment
+    double max_lambdai = 0.0;
+    double origin = 0.0;
+    int max_index_i = 0;
+
+    double max_lambdaj = 0.0;
+    int max_index_j = 0;
+
+    double max_s_corr = 0.0;
+    int max_s_corr_i = 0;
+    int max_s_corr_j = 0;
+
+    double max_grad = 0.0;
+
+    Eigen::RowVector3d dp;
+
 
     for (int x_offset = -1 ; x_offset < 2; x_offset++ ) {
         for (int y_offset = -1; y_offset < 2; y_offset++) {
@@ -62,13 +80,32 @@ void compute_delta_position(
                     Eigen::Vector3d diff = p_i - p_j;
                     
                     Eigen::Vector3d local_grad;
+                    local_grad.setZero();
                     spiky_grad(diff, h, local_grad);
 
-                    double s_corr = -0.1 * pow(poly6(diff.norm(), h)/poly6(0.1 * h, h), 4);
+
+                    double s_corr = -0.1 * pow(poly6(diff.norm(), h) / poly6(0.1 * h, h), 4.0);
+
+                    if (abs(s_corr) > max_s_corr){
+                        max_s_corr = abs(s_corr);
+                        origin = s_corr;
+                    }
+
+                    if (abs(local_grad.norm()) > max_grad){
+                        max_grad = abs(local_grad.norm());
+                        max_index_i = i;
+                        max_index_j = target_id;
+                        dp = (Eigen::RowVector3d) diff;
+                    }
+
                     tmp += (lambdas(i) + lambdas(target_id) + s_corr) * local_grad;
                 }
             }
         }
     }
     delta_positions.row(i) = (1/pho0) * tmp;
+    if (delta_positions.row(i).norm() > 0.5){
+        std::cout << delta_positions.row(i).norm() << " | " << max_s_corr << " | " << origin << " | " << max_index_i << " | " << max_index_j
+        << " | " << max_grad<< " | " << dp <<std::endl;
+    }
 }
