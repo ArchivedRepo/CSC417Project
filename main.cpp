@@ -24,7 +24,7 @@ double dt = 0.01; //time step
 double cube_s = 0.2;
 double h = cube_s;
 double mass = 1.0;
-double pho0 = 8000.0;
+double pho0 = 10000.0;
 double epsilon = 1000;
 double num_iteration = 3;
 
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
     viewer.core().background_color.setConstant(1.0);
 
     sim_space_bot_left << 0.0, 0.0, 0.0;
-    sim_space_top_right << 4.0, 4.0, 4.0;
+    sim_space_top_right << 8.0, 8.0, 8.0;
 
     Eigen::Vector3d particle_init_bot_left;
     particle_init_bot_left << 0.1, 0.1, 0.1;
@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
     velocity.resize(positions.rows(), 3);
     velocity.setZero();
     viewer.data().set_points(positions, particle_color);
-    viewer.data().point_size = 10.0;
+    viewer.data().point_size = 5.0;
 
     Eigen::Vector3d g_v;
     g_v << 0.0, -9.8, 0.0;
