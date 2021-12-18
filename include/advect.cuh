@@ -1,11 +1,12 @@
-// #include <cuda_runtime.h>
+#include <cuda_runtime.h>
 
-// __device__ void advect(
-//     float3* positions,
-//     float3* positions_star,
-//     float3* velocity,
-//     float3* accu,
-//     Eigen::Vector3d &bottom_left,
-//     Eigen::Vector3d &top_right,
-//     double dt
-// );
+__global__ void advect(
+    float3* positions,
+    float3* positions_star,
+    float3* velocity,
+    float3* accu, //vector
+    float3* bottom_left, // vector
+    float3* top_right, //vector
+    double dt,
+    int N
+);

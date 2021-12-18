@@ -3,8 +3,8 @@
 #include <igl/opengl/glfw/Viewer.h>
 
 #include <init_particles.h>
-#include <gravity_matrix.h>
 #include <simulation_step.h>
+
 
 Eigen::MatrixXd positions;
 Eigen::MatrixXd velocity;
@@ -41,7 +41,7 @@ bool simulation_callback() {
     // viewer.data().set_points(positions, particle_color);
     // std::cout << "Complete a step" << std::endl;
     // // }
-    // return true;
+    return true;
 }
 
 int main(int argc, char **argv) {
