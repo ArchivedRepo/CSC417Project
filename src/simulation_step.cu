@@ -22,6 +22,8 @@ void simulation_step(
     int* result,
     int* grid_index,
     int* particle_index,
+    int* cell_start,
+    int* cell_end,
     float cube_s,
     float dt,
     float h,
@@ -39,7 +41,7 @@ void simulation_step(
     cudaDeviceSynchronize();
 
     build_grid(device_positions_star, result, cube_s, sim_space_bot_left,
-    sim_space_top_right, grid_index, particle_index, N);
+    sim_space_top_right, grid_index, particle_index, cell_start, cell_end, N);
     cudaDeviceSynchronize();
 
     cudaError_t status;

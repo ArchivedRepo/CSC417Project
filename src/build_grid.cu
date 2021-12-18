@@ -1,9 +1,17 @@
+/**
+The following code is based on:
+Particle Simulation using CUDA. Simon Green
+https://developer.download.nvidia.com/assets/cuda/files/particles.pdf
+And used code from the corresponding source code from Nvidia cuda-samples:
+https://github.com/NVIDIA/cuda-samples/blob/master/Samples/particles
+*/
 #include <build_grid.cuh>
 #include <iostream>
 #include <assert.h>
 #include <thrust/sort.h>
 #include <thrust/execution_policy.h>
 #include <thrust/device_ptr.h>
+#include <vector>
 
 static __device__ int compute_index(
     float3 position,
@@ -58,6 +66,46 @@ static __global__ void compute_grid_index(
 
 }
 
+/*
+The following code is adapthed from:
+https://github.com/NVIDIA/cuda-samples/blob/11de19f00cd24e244d2f6869c64810d63aafb926/Samples/particles/particles_kernel_impl.cuh#L148
+*/
+__global__ void compute_index(
+    int *cellStart,          // output: cell start index
+    int *cellEnd,            // output: cell end index
+    int *gridParticleHash,   // input: sorted grid hashes
+    int *gridParticleIndex,  // input: sorted particle indices
+    int N
+) {
+    extern __shared__ uint sharedHash[];  // blockSize + 1 elements
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    int hash;
+
+    if (index < N) {
+        hash = gridParticleHash[index];
+        sharedHash[threadIdx.x + 1] = hash;
+
+        if (index > 0 && threadIdx.x == 0) {
+            sharedHash[0] = gridParticleHash[index - 1];
+        }
+    }
+
+    __syncthreads();
+
+    if (index < N) {
+        if (index == 0 || hash != sharedHash[threadIdx.x]) {
+            cellStart[hash] = index;
+            if (index > 0) {
+                cellEnd[sharedHash[threadIdx.x]] = index;
+            }
+        }
+
+        if (index == N - 1) {
+            cellEnd[hash] = index + 1;
+        }
+    }
+}
+
 void build_grid(
     float3* positions,
     int* result,
@@ -66,42 +114,19 @@ void build_grid(
     float3* up_right,
     int* grid_index,
     int* particle_index,
+    int* cell_start,
+    int* cell_end,
     int N
 ) {
     dim3 grid_dim(64, 1, 1);
     dim3 thread_block(128, 1, 1);
+    uint shared_mem_size = (128 + 1) * sizeof(int);
     compute_grid_index<<<grid_dim, thread_block>>>(positions, grid_index, particle_index,
     N, bot_left, up_right, cube_s);
     
     thrust::device_ptr<int> keys(grid_index);
     thrust::device_ptr<int> values(particle_index);
     thrust::sort_by_key(keys, keys+N, values);
-    // int cur_grid = 0;
-    // for (int i = 0; i < N; i++) {
-    //     std::tuple<int, int> this_tuple = grid_indices[i];
-    //     int grid_index = std::get<0>(this_tuple);
-    //     assert(grid_index >= 0);
-    //     // grid index
-    //     // cur_grid = 5
-    //     // 0, 0, 0, 1, 4, 4, 5
-    //     // 0, 1, 2, 3, 4, 5, 6
-    //     // 3, 4, 4, 6, 7
-    //     if (grid_index == cur_grid + 1) {
-    //         result.push_back(i);
-    //         cur_grid += 1;
-    //     } else if (grid_index != cur_grid) {
-    //         // grid_index > cur_grid+1
-    //         while (grid_index != cur_grid + 1) {
-    //             result.push_back(i);
-    //             cur_grid += 1;
-    //         }
-    //         result.push_back(i);
-    //         cur_grid += 1;
-    //     }
-    //     if (i == N - 1) {
-    //         while (result.size() < num_L * num_W * num_H) {
-    //             result.push_back(N);
-    //         }
-    //     }
-    // }
+
+    compute_index<<<grid_dim, thread_block, shared_mem_size>>>(cell_start, cell_end, grid_index, particle_index, N);
 }

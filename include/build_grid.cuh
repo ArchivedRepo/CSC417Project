@@ -19,5 +19,7 @@ void build_grid(
     float3* up_right,
     int* grid_index,
     int* particle_index,
+    int* cell_start,
+    int* cell_end,
     int N
 );
