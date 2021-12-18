@@ -5,32 +5,33 @@
 
 #include <init_particles.cuh>
 #include <mem_util.cuh>
-#include <simulation_step.h>
+#include <simulation_step.cuh>
 
 
 Eigen::MatrixXd positions;
-Eigen::MatrixXd velocity;
+float3* velocity;
 float* cpu_device_buf;
 float3* positions_device;
+float3* positions_star_device;
 double particle_init_step = 0.1;
 igl::opengl::glfw::Viewer viewer;
 
-Eigen::Vector3d sim_space_bot_left;
-Eigen::Vector3d sim_space_top_right;
+float3* sim_space_bot_left;
+float3* sim_space_top_right;
 
 
 //constants
-Eigen::MatrixXd gravity_m;
+float3* gravity_m;
 
 //simulation time and time step
-double t = 0; //simulation time 
-double dt = 0.01; //time step
-double cube_s = 0.2;
-double h = cube_s;
-double mass = 1.0;
-double pho0 = 10000.0;
-double epsilon = 1000;
-double num_iteration = 3;
+float t = 0; //simulation time 
+float dt = 0.01; //time step
+float cube_s = 0.2;
+float h = cube_s;
+float mass = 1.0;
+float pho0 = 10000.0;
+float epsilon = 1000;
+float num_iteration = 3;
 
 //simulation loop
 bool simulating = true;
@@ -38,12 +39,13 @@ bool simulating = true;
 bool simulation_callback() {
 
     // while (simulating) {
-    // simulation_step(positions, velocity, gravity_m, sim_space_bot_left, 
-    // sim_space_top_right, cube_s, dt, h, mass, pho0, epsilon, num_iteration);
+    simulation_step(positions, cpu_device_buf, positions_device, positions_star_device,
+    velocity, gravity_m, sim_space_bot_left, sim_space_top_right,
+    cube_s, dt, h, mass, pho0, epsilon, num_iteration);
 
     // const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
     // viewer.data().set_points(positions, particle_color);
-    // std::cout << "Complete a step" << std::endl;
+    std::cout << "Complete a step" << std::endl;
     // // }
     return true;
 }
@@ -56,8 +58,25 @@ int main(int argc, char **argv) {
 
     viewer.core().background_color.setConstant(1.0);
 
-    sim_space_bot_left << 0.0, 0.0, 0.0;
-    sim_space_top_right << 8.0, 8.0, 8.0;
+    cudaError_t status;
+    if ((status = cudaMalloc(&sim_space_bot_left, sizeof(float3))) != cudaSuccess) {
+        std::cout << "ERROR cudaMalloc" << cudaGetErrorName(status) << std::endl;
+    }
+    if ((status = cudaMalloc(&sim_space_top_right, sizeof(float3))) != cudaSuccess) {
+        std::cout << "ERROR cudaMalloc" << cudaGetErrorName(status) << std::endl;
+    }
+    if ((status = cudaMalloc(&gravity_m, sizeof(float3))) != cudaSuccess) {
+        std::cout << "ERROR cudaMalloc" << cudaGetErrorName(status) << std::endl;
+    }
+    cpu_device_buf = (float*)malloc(sizeof(float)*3);
+    Eigen::MatrixXd tmp(1, 3);
+    tmp << 0.0, 0.0, 0.0;
+    to_gpu(tmp, cpu_device_buf, sim_space_bot_left);
+    tmp << 8.0, 8.0, 8.0;
+    to_gpu(tmp, cpu_device_buf, sim_space_top_right);
+    tmp << 0.0, -9.8, 0.0;
+    to_gpu(tmp, cpu_device_buf, gravity_m);
+    free(cpu_device_buf);
 
     Eigen::Vector3d particle_init_bot_left;
     particle_init_bot_left << 0.1, 0.1, 0.1;
@@ -67,16 +86,20 @@ int main(int argc, char **argv) {
     init_particles(positions, particle_init_bot_left, particle_init_step, 
     20, 20, 20);
     cpu_device_buf = (float*)malloc(sizeof(float)*3*positions.rows());
-    cudaError_t status;
+    
     if ((status = cudaMalloc(&positions_device, sizeof(float3)*positions.rows())) != cudaSuccess) {
         std::cout << "ERROR cudaMalloc" << cudaGetErrorName(status) << std::endl;
     }
-    // to_gpu(positions, cpu_device_buf, positions_device);
+    if ((status = cudaMalloc(&positions_star_device, sizeof(float3)*positions.rows())) != cudaSuccess) {
+        std::cout << "ERROR cudaMalloc" << cudaGetErrorName(status) << std::endl;
+    }
+    if ((status = cudaMalloc(&velocity, sizeof(float3)*positions.rows())) != cudaSuccess) {
+        std::cout << "ERROR cudaMalloc" << cudaGetErrorName(status) << std::endl;
+    }
+    to_gpu(positions, cpu_device_buf, positions_device);
     // positions.setZero();
     // to_cpu(positions_device, cpu_device_buf, positions);
 
-    velocity.resize(positions.rows(), 3);
-    velocity.setZero();
     viewer.data().set_points(positions, particle_color);
     viewer.data().point_size = 5.0;
 
@@ -94,7 +117,9 @@ int main(int argc, char **argv) {
 			case 'A':
 			case 'a':
 				//with ghost pressure
-				// simulation_callback();
+				simulation_callback();
+                viewer.data().set_points(positions, particle_color);
+                std::cout << positions << std::endl;
 				break;
 			default:
 				return false;

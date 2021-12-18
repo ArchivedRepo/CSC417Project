@@ -50,7 +50,7 @@ __global__ void advect(
     
     positions_star[i].x = positions[i].x + dt * velocity[i].x;
     positions_star[i].y = positions[i].y + dt * velocity[i].y;
-    positions_star[i].y = positions[i].z + dt * velocity[i].z;
+    positions_star[i].z = positions[i].z + dt * velocity[i].z;
 
     float3* tmp = &positions_star[i];
     float3* tmp_v = &velocity[i];
