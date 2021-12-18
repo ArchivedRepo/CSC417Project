@@ -34,14 +34,14 @@ bool simulating = true;
 bool simulation_callback() {
 
     // while (simulating) {
-    simulation_step(positions, velocity, gravity_m, sim_space_bot_left, 
-    sim_space_top_right, cube_s, dt, h, mass, pho0, epsilon, num_iteration);
+    // simulation_step(positions, velocity, gravity_m, sim_space_bot_left, 
+    // sim_space_top_right, cube_s, dt, h, mass, pho0, epsilon, num_iteration);
 
-    const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
-    viewer.data().set_points(positions, particle_color);
-    std::cout << "Complete a step" << std::endl;
-    // }
-    return true;
+    // const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
+    // viewer.data().set_points(positions, particle_color);
+    // std::cout << "Complete a step" << std::endl;
+    // // }
+    // return true;
 }
 
 int main(int argc, char **argv) {
@@ -52,27 +52,27 @@ int main(int argc, char **argv) {
     
     viewer.core().background_color.setConstant(1.0);
 
-    sim_space_bot_left << 0.0, 0.0, 0.0;
-    sim_space_top_right << 8.0, 8.0, 8.0;
+    // sim_space_bot_left << 0.0, 0.0, 0.0;
+    // sim_space_top_right << 8.0, 8.0, 8.0;
 
-    Eigen::Vector3d particle_init_bot_left;
-    particle_init_bot_left << 0.1, 0.1, 0.1;
+    // Eigen::Vector3d particle_init_bot_left;
+    // particle_init_bot_left << 0.1, 0.1, 0.1;
 
 
-    const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
-    init_particles(positions, particle_init_bot_left, particle_init_step, 
-    20, 20, 20);
-    velocity.resize(positions.rows(), 3);
-    velocity.setZero();
-    viewer.data().set_points(positions, particle_color);
-    viewer.data().point_size = 5.0;
+    // const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
+    // init_particles(positions, particle_init_bot_left, particle_init_step, 
+    // 20, 20, 20);
+    // velocity.resize(positions.rows(), 3);
+    // velocity.setZero();
+    // viewer.data().set_points(positions, particle_color);
+    // viewer.data().point_size = 5.0;
 
-    Eigen::Vector3d g_v;
-    g_v << 0.0, -9.8, 0.0;
-    gravity_matrix(gravity_m, g_v, positions.rows());
+    // Eigen::Vector3d g_v;
+    // g_v << 0.0, -9.8, 0.0;
+    // gravity_matrix(gravity_m, g_v, positions.rows());
 
-    std::thread simulation_thread(simulation_callback);
-    simulation_thread.detach();
+    // std::thread simulation_thread(simulation_callback);
+    // simulation_thread.detach();
 
     viewer.callback_key_pressed =
 			[&](igl::opengl::glfw::Viewer&, unsigned char key, int)->bool
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
 			case 'A':
 			case 'a':
 				//with ghost pressure
-				simulation_callback();
+				// simulation_callback();
 				break;
 			default:
 				return false;
