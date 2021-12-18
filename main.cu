@@ -1,13 +1,17 @@
 #include <iostream>
 #include <thread>
 #include <igl/opengl/glfw/Viewer.h>
+#include <cuda_runtime.h>
 
-#include <init_particles.h>
+#include <init_particles.cuh>
+#include <mem_util.cuh>
 #include <simulation_step.h>
 
 
 Eigen::MatrixXd positions;
 Eigen::MatrixXd velocity;
+float* cpu_device_buf;
+float3* positions_device;
 double particle_init_step = 0.1;
 igl::opengl::glfw::Viewer viewer;
 
@@ -49,27 +53,35 @@ int main(int argc, char **argv) {
     std::cout<<"Start Project\n";
 
     //setup libigl viewer and activate 
-    
+
     viewer.core().background_color.setConstant(1.0);
 
-    // sim_space_bot_left << 0.0, 0.0, 0.0;
-    // sim_space_top_right << 8.0, 8.0, 8.0;
+    sim_space_bot_left << 0.0, 0.0, 0.0;
+    sim_space_top_right << 8.0, 8.0, 8.0;
 
-    // Eigen::Vector3d particle_init_bot_left;
-    // particle_init_bot_left << 0.1, 0.1, 0.1;
+    Eigen::Vector3d particle_init_bot_left;
+    particle_init_bot_left << 0.1, 0.1, 0.1;
 
 
-    // const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
-    // init_particles(positions, particle_init_bot_left, particle_init_step, 
-    // 20, 20, 20);
-    // velocity.resize(positions.rows(), 3);
-    // velocity.setZero();
-    // viewer.data().set_points(positions, particle_color);
-    // viewer.data().point_size = 5.0;
+    const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
+    init_particles(positions, particle_init_bot_left, particle_init_step, 
+    20, 20, 20);
+    cpu_device_buf = (float*)malloc(sizeof(float)*3*positions.rows());
+    cudaError_t status;
+    if ((status = cudaMalloc(&positions_device, sizeof(float3)*positions.rows())) != cudaSuccess) {
+        std::cout << "ERROR cudaMalloc" << cudaGetErrorName(status) << std::endl;
+    }
+    // to_gpu(positions, cpu_device_buf, positions_device);
+    // positions.setZero();
+    // to_cpu(positions_device, cpu_device_buf, positions);
+
+    velocity.resize(positions.rows(), 3);
+    velocity.setZero();
+    viewer.data().set_points(positions, particle_color);
+    viewer.data().point_size = 5.0;
 
     // Eigen::Vector3d g_v;
     // g_v << 0.0, -9.8, 0.0;
-    // gravity_matrix(gravity_m, g_v, positions.rows());
 
     // std::thread simulation_thread(simulation_callback);
     // simulation_thread.detach();
