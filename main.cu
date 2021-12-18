@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
 				//with ghost pressure
 				simulation_callback();
                 viewer.data().set_points(positions, particle_color);
-                std::cout << positions << std::endl;
+                // std::cout << positions << std::endl;
 				break;
 			default:
 				return false;

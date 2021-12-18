@@ -1,4 +1,5 @@
-// #include <EigenTypes.h>
+#include <EigenTypes.h>
+#include <cuda_runtime.h>
 
 // int compute_index(
 //     Eigen::Vector3d position,
