@@ -11,11 +11,13 @@
 
 // void xyh_to_index(int x, int y, int h, int L, int W, int H, int &index);
 
-// void build_grid(
-//     Eigen::MatrixXd &positions,
-//     std::vector<int> &result,
-//     double cube_s,
-//     Eigen::Vector3d &bot_left,
-//     Eigen::Vector3d &up_right,
-//     std::vector<std::tuple<int, int>> &grid_indices // tuple<grid_index, particle_index>
-// );
+void build_grid(
+    float3* positions,
+    int* result,
+    float cube_s,
+    float3* bot_left,
+    float3* up_right,
+    int* grid_index,
+    int* particle_index,
+    int N
+);

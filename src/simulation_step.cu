@@ -1,6 +1,7 @@
 #include <simulation_step.cuh>
 #include <advect.cuh>
 #include <mem_util.cuh>
+#include <build_grid.cuh>
 // #include <compute_lambda.h>
 // #include <compute_delta_position.h>
 // #include <update_position.h>
@@ -18,6 +19,9 @@ void simulation_step(
     float3* gravity,
     float3* sim_space_bot_left,
     float3* sim_space_top_right,
+    int* result,
+    int* grid_index,
+    int* particle_index,
     float cube_s,
     float dt,
     float h,
@@ -32,6 +36,10 @@ void simulation_step(
     dim3 thread_block(128, 1, 1);
     advect<<<grid_dim, thread_block>>>(device_positions, device_positions_star,
     velocity, gravity, sim_space_bot_left, sim_space_top_right, dt, N);
+    cudaDeviceSynchronize();
+
+    build_grid(device_positions_star, result, cube_s, sim_space_bot_left,
+    sim_space_top_right, grid_index, particle_index, N);
     cudaDeviceSynchronize();
 
     cudaError_t status;

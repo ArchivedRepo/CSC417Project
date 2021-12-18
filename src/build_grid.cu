@@ -1,16 +1,19 @@
 #include <build_grid.cuh>
 #include <iostream>
 #include <assert.h>
+#include <thrust/sort.h>
+#include <thrust/execution_policy.h>
+#include <thrust/device_ptr.h>
 
 static __device__ int compute_index(
     float3 position,
-    float3 bot_left,
+    float3 *bot_left,
     int num_L, int num_W, int num_H, float cube_s
 ) {
     float3 relative_pos = make_float3(
-        position.x-bot_left.x,
-        position.y-bot_left.y,
-        position.z-bot_left.z
+        position.x-bot_left->x,
+        position.y-bot_left->y,
+        position.z-bot_left->z
     );
     
     int3 int_pos;
@@ -38,7 +41,7 @@ static __device__ int compute_index(
 static __global__ void compute_grid_index(
     float3* positions, int* grid_index, 
     int* particle_index, int N,
-    float3 bot_left, float3 up_right, float cube_s
+    float3* bot_left, float3* up_right, float cube_s
     ) {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -46,9 +49,9 @@ static __global__ void compute_grid_index(
         return;
     }
 
-    int num_L = ceilf((up_right.x - bot_left.x) / cube_s);
-    int num_W = ceilf((up_right.y - bot_left.y) / cube_s);
-    int num_H = ceilf((up_right.z - bot_left.z) / cube_s);
+    int num_L = ceilf((up_right->x - bot_left->x) / cube_s);
+    int num_W = ceilf((up_right->y - bot_left->y) / cube_s);
+    int num_H = ceilf((up_right->z - bot_left->z) / cube_s);
 
     grid_index[i] = compute_index(positions[i], bot_left, num_L, num_W, num_H, cube_s);
     particle_index[i] = i;
@@ -59,8 +62,8 @@ void build_grid(
     float3* positions,
     int* result,
     float cube_s,
-    float3 bot_left,
-    float3 up_right,
+    float3* bot_left,
+    float3* up_right,
     int* grid_index,
     int* particle_index,
     int N
@@ -70,9 +73,9 @@ void build_grid(
     compute_grid_index<<<grid_dim, thread_block>>>(positions, grid_index, particle_index,
     N, bot_left, up_right, cube_s);
     
-    // std::sort(grid_indices.begin(), grid_indices.end());
-    // result.clear();
-
+    thrust::device_ptr<int> keys(grid_index);
+    thrust::device_ptr<int> values(particle_index);
+    thrust::sort_by_key(keys, keys+N, values);
     // int cur_grid = 0;
     // for (int i = 0; i < N; i++) {
     //     std::tuple<int, int> this_tuple = grid_indices[i];
