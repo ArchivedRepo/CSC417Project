@@ -3,7 +3,7 @@
 #include <mem_util.cuh>
 #include <build_grid.cuh>
 #include <compute_lambda.cuh>
-// #include <compute_delta_position.h>
+#include <compute_delta_position.cuh>
 // #include <update_position.h>
 // #include <update_velocity.h>
 // #include <viscosity_confinement.h>
@@ -25,6 +25,7 @@ void simulation_step(
     int* cell_start,
     int* cell_end,
     float* lambdas,
+    float3* delta_positions,
     float cube_s,
     float dt,
     float h,
@@ -49,6 +50,10 @@ void simulation_step(
     lambdas, cell_start, cell_end, grid_index, particle_index,
     sim_space_bot_left, sim_space_top_right, cube_s, N);
     cudaDeviceSynchronize();
+
+    compute_delta_position<<<grid_dim, thread_block>>>(device_positions_star, pho0, h, lambdas, delta_positions,
+    cell_start, cell_end, grid_index, particle_index, 
+    sim_space_bot_left, sim_space_top_right, cube_s, N);
 
     cudaError_t status;
     if ((status = cudaMemcpy(device_positions, device_positions_star, N*sizeof(float)*3,cudaMemcpyDeviceToDevice))!= cudaSuccess) {

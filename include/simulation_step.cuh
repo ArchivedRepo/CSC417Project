@@ -17,6 +17,7 @@ void simulation_step(
     int* cell_start,
     int* cell_end,
     float* lambdas,
+    float3* delta_positions,
     float cube_s,
     float dt,
     float h,
