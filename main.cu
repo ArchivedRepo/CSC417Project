@@ -44,27 +44,28 @@ float pho0 = 10000.0;
 float epsilon = 1000;
 float num_iteration = 3;
 
+const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
+
 //simulation loop
 bool simulating = true;
 
 bool simulation_callback() {
 
-    // while (simulating) {
-    clock_t t;
-    t= clock();
-    simulation_step(positions, cpu_device_buf, positions_device, positions_star_device,
-    velocity, gravity_m, sim_space_bot_left, sim_space_top_right, result,
-    grid_index, particle_index, cell_start, cell_end, lambdas, delta_positions,
-    cube_s, dt, h, mass, pho0, epsilon, num_iteration);
-    t = clock() - t;
-    double time_taken = ((double)t)/CLOCKS_PER_SEC;
-
-    // const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
-    // viewer.data().set_points(positions, particle_color);
-    std::cout << "Complete a step in " << time_taken <<  "s" << std::endl;
-    // // }
+    while (simulating) {
+    
+        simulation_step(positions, cpu_device_buf, positions_device, positions_star_device,
+        velocity, gravity_m, sim_space_bot_left, sim_space_top_right, result,
+        grid_index, particle_index, cell_start, cell_end, lambdas, delta_positions,
+        cube_s, dt, h, mass, pho0, epsilon, num_iteration);
+    }
     return true;
 }
+
+bool draw_callback(igl::opengl::glfw::Viewer &viewer) {
+    viewer.data().set_points(positions, particle_color);
+    return false;
+}
+
 
 int main(int argc, char **argv) {
 
@@ -97,8 +98,6 @@ int main(int argc, char **argv) {
     Eigen::Vector3d particle_init_bot_left;
     particle_init_bot_left << 0.1, 0.1, 0.1;
 
-
-    const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
     init_particles(positions, particle_init_bot_left, particle_init_step, 
     20, 20, 20);
     cpu_device_buf = (float*)malloc(sizeof(float)*3*positions.rows());
@@ -144,8 +143,10 @@ int main(int argc, char **argv) {
     // Eigen::Vector3d g_v;
     // g_v << 0.0, -9.8, 0.0;
 
-    // std::thread simulation_thread(simulation_callback);
-    // simulation_thread.detach();
+    std::thread simulation_thread(simulation_callback);
+    simulation_thread.detach();
+
+    viewer.callback_post_draw = &draw_callback;
 
     viewer.callback_key_pressed =
 			[&](igl::opengl::glfw::Viewer&, unsigned char key, int)->bool
@@ -155,8 +156,7 @@ int main(int argc, char **argv) {
 			case 'A':
 			case 'a':
 				//with ghost pressure
-				simulation_callback();
-                viewer.data().set_points(positions, particle_color);
+				simulating = !simulating;
                 // std::cout << positions << std::endl;
 				break;
 			default:
