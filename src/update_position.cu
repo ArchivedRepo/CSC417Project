@@ -1,18 +1,16 @@
 #include <update_position.cuh>
-// #include <algorithm>
 
-// void update_positions(
-//     Eigen::MatrixXd &positions,
-//     Eigen::MatrixXd &delta_positions,
-//     Eigen::MatrixXd &velocity,
-//     Eigen::Vector3d &bottom_left,
-//     Eigen::Vector3d &top_right
-// ) {
-//     positions = positions + delta_positions;
-//     // for (int i = 0; i < positions.rows(); i++) {
-//     //     Eigen::Vector3d tmp = positions.row(i);
-//     //     Eigen::Vector3d tmp_v = velocity.row(i);
-//     //     apply_boundry(tmp, tmp_v, bottom_left, top_right);
-//     //     positions.row(i) = tmp;
-//     // }
-// }
+__global__ void update_positions(
+    float3* positions,
+    float3* delta_positions,
+    int N
+) {
+    int i = blockDim.x * blockIdx.x + threadIdx.x;
+    if (i >= N) {
+        return;
+    }
+
+    positions[i].x = positions[i].x + delta_positions[i].x;
+    positions[i].y = positions[i].y + delta_positions[i].y;
+    positions[i].z = positions[i].z + delta_positions[i].z;
+}

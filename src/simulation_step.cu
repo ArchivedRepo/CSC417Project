@@ -4,8 +4,8 @@
 #include <build_grid.cuh>
 #include <compute_lambda.cuh>
 #include <compute_delta_position.cuh>
-// #include <update_position.h>
-// #include <update_velocity.h>
+#include <update_position.cuh>
+#include <update_velocity.cuh>
 // #include <viscosity_confinement.h>
 // #include <build_grid.h>
 #include <iostream>
@@ -46,14 +46,20 @@ void simulation_step(
     sim_space_top_right, grid_index, particle_index, cell_start, cell_end, N);
     cudaDeviceSynchronize();
 
-    compute_lambda<<<grid_dim, thread_block>>>(device_positions_star, pho0, mass, epsilon, h,
-    lambdas, cell_start, cell_end, grid_index, particle_index,
-    sim_space_bot_left, sim_space_top_right, cube_s, N);
-    cudaDeviceSynchronize();
+    for (int iter=0; iter < num_iteration; iter++) {
+        compute_lambda<<<grid_dim, thread_block>>>(device_positions_star, pho0, mass, epsilon, h,
+        lambdas, cell_start, cell_end, grid_index, particle_index,
+        sim_space_bot_left, sim_space_top_right, cube_s, N);
+        cudaDeviceSynchronize();
 
-    compute_delta_position<<<grid_dim, thread_block>>>(device_positions_star, pho0, h, lambdas, delta_positions,
-    cell_start, cell_end, grid_index, particle_index, 
-    sim_space_bot_left, sim_space_top_right, cube_s, N);
+        compute_delta_position<<<grid_dim, thread_block>>>(device_positions_star, pho0, h, lambdas, delta_positions,
+        cell_start, cell_end, grid_index, particle_index, 
+        sim_space_bot_left, sim_space_top_right, cube_s, N);
+
+        update_positions<<<grid_dim, thread_block>>>(device_positions_star, delta_positions, N);
+    }
+    update_velocity<<<grid_dim, thread_block>>>(device_positions, device_positions_star, velocity, dt, N);
+    
 
     cudaError_t status;
     if ((status = cudaMemcpy(device_positions, device_positions_star, N*sizeof(float)*3,cudaMemcpyDeviceToDevice))!= cudaSuccess) {
