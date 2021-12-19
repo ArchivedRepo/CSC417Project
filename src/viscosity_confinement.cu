@@ -114,8 +114,8 @@ __global__ void viscosity_confinement(
             }
         }
     }
-
-    velocity[i].x += 0.001 * accu.x;
-    velocity[i].y += 0.001 * accu.y;
-    velocity[i].z += 0.001 * accu.z;
+    float c_corr_eff = 0.001;
+    velocity[i].x += c_corr_eff * accu.x;
+    velocity[i].y += c_corr_eff * accu.y;
+    velocity[i].z += c_corr_eff * accu.z;
 }

@@ -40,7 +40,7 @@ float dt = 0.01; //time step
 float cube_s = 0.4;
 float h = cube_s;
 float mass = 1.0;
-float pho0 = 10000.0;
+float pho0 = 8000.0;
 float epsilon = 1000;
 float num_iteration = 3;
 
@@ -74,6 +74,7 @@ bool draw_callback(igl::opengl::glfw::Viewer &viewer) {
 int main(int argc, char **argv) {
 
     std::cout<<"Start Project\n";
+    int num_cell = 64000;
 
     //setup libigl viewer and activate 
 
@@ -93,17 +94,17 @@ int main(int argc, char **argv) {
     Eigen::MatrixXd tmp(1, 3);
     tmp << 0.0, 0.0, 0.0;
     to_gpu(tmp, cpu_device_buf, sim_space_bot_left);
-    tmp << 8.0, 8.0, 8.0;
+    tmp << 4.0, 4.0, 4.0;
     to_gpu(tmp, cpu_device_buf, sim_space_top_right);
     tmp << 0.0, -9.8, 0.0;
     to_gpu(tmp, cpu_device_buf, gravity_m);
     free(cpu_device_buf);
 
     Eigen::Vector3d particle_init_bot_left;
-    particle_init_bot_left << 0.1, 0.1, 0.1;
+    particle_init_bot_left << 2.0, 2.0, 2.0;
 
     init_particles(positions, particle_init_bot_left, particle_init_step, 
-    20, 20, 20);
+    10, 20, 20);
     cpu_device_buf = (float*)malloc(sizeof(float)*3*positions.rows());
     
     if ((status = cudaMalloc(&positions_device, sizeof(float3)*positions.rows())) != cudaSuccess) {
@@ -124,10 +125,10 @@ int main(int argc, char **argv) {
     if ((status = cudaMalloc(&particle_index, sizeof(int)*positions.rows())) != cudaSuccess) {
         std::cout << "ERROR cudaMalloc" << cudaGetErrorName(status) << std::endl;
     }
-    if ((status = cudaMalloc(&cell_start, sizeof(int)*positions.rows())) != cudaSuccess) {
+    if ((status = cudaMalloc(&cell_start, sizeof(int)*num_cell)) != cudaSuccess) {
         std::cout << "ERROR cudaMalloc" << cudaGetErrorName(status) << std::endl;
     }
-    if ((status = cudaMalloc(&cell_end, sizeof(int)*positions.rows())) != cudaSuccess) {
+    if ((status = cudaMalloc(&cell_end, sizeof(int)*num_cell)) != cudaSuccess) {
         std::cout << "ERROR cudaMalloc" << cudaGetErrorName(status) << std::endl;
     }
     if ((status = cudaMalloc(&lambdas, sizeof(float)*positions.rows())) != cudaSuccess) {
