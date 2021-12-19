@@ -36,15 +36,16 @@ float3* gravity_m;
 
 //simulation time and time step
 float t = 0; //simulation time 
-float dt = 0.01; //time step
+float dt = 0.03; //time step
 float cube_s = 0.4;
 float h = cube_s;
-float mass = 1.0;
-float pho0 = 12000.0;
+float mass = 0.8;
+float pho0 = 8000.0;
 float epsilon = 1000;
 float num_iteration = 3;
 
 const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
+const int xid = viewer.selected_data_index;
 
 //simulation loop
 bool simulating = true;
@@ -66,7 +67,7 @@ bool draw_callback(igl::opengl::glfw::Viewer &viewer) {
         velocity, gravity_m, sim_space_bot_left, sim_space_top_right, result,
         grid_index, particle_index, cell_start, cell_end, lambdas, delta_positions,
         cube_s, dt, h, mass, pho0, epsilon, num_iteration);
-    viewer.data().set_points(positions, particle_color);
+    viewer.data_list[xid].set_points(positions, particle_color);
     return false;
 }
 
@@ -74,7 +75,7 @@ bool draw_callback(igl::opengl::glfw::Viewer &viewer) {
 int main(int argc, char **argv) {
 
     std::cout<<"Start Project\n";
-    int num_cell = 1000;
+    int num_cell = 8000;
 
     //setup libigl viewer and activate 
 
@@ -94,7 +95,7 @@ int main(int argc, char **argv) {
     Eigen::MatrixXd tmp(1, 3);
     tmp << 0.0, 0.0, 0.0;
     to_gpu(tmp, cpu_device_buf, sim_space_bot_left);
-    tmp << 4.0, 4.0, 4.0;
+    tmp << 8.0, 8.0, 8.0;
     to_gpu(tmp, cpu_device_buf, sim_space_top_right);
     tmp << 0.0, -9.8, 0.0;
     to_gpu(tmp, cpu_device_buf, gravity_m);
@@ -104,7 +105,7 @@ int main(int argc, char **argv) {
     particle_init_bot_left << 2.0, 2.0, 2.0;
 
     init_particles(positions, particle_init_bot_left, particle_init_step, 
-    10, 20, 20);
+    20, 30, 20);
     cpu_device_buf = (float*)malloc(sizeof(float)*3*positions.rows());
     
     if ((status = cudaMalloc(&positions_device, sizeof(float3)*positions.rows())) != cudaSuccess) {
@@ -142,8 +143,8 @@ int main(int argc, char **argv) {
     // positions.setZero();
     // to_cpu(positions_device, cpu_device_buf, positions);
 
-    viewer.data().set_points(positions, particle_color);
-    viewer.data().point_size = 5.0;
+    viewer.data_list[xid].set_points(positions, particle_color);
+    viewer.data_list[xid].point_size = 8;
 
     // Eigen::Vector3d g_v;
     // g_v << 0.0, -9.8, 0.0;

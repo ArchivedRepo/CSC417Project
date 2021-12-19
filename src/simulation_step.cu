@@ -8,6 +8,7 @@
 #include <update_velocity.cuh>
 #include <viscosity_confinement.cuh>
 #include <iostream>
+#include <time.h>
 
 void simulation_step(
     Eigen::MatrixXd &positions,
@@ -33,6 +34,8 @@ void simulation_step(
     float epsilon,
     float num_iteration
 ) {
+    clock_t t = clock();
+
     int N = positions.rows();
 
     dim3 grid_dim(64, 1, 1);
@@ -61,12 +64,19 @@ void simulation_step(
     
     viscosity_confinement<<<grid_dim, thread_block>>>(device_positions_star, velocity, h, cell_start, cell_end,
     grid_index, particle_index, sim_space_bot_left, sim_space_top_right, cube_s, N);
+    
 
     cudaError_t status;
     if ((status = cudaMemcpy(device_positions, device_positions_star, N*sizeof(float)*3,cudaMemcpyDeviceToDevice))!= cudaSuccess) {
         std::cout << "ERROR memcpy: " << cudaGetErrorName(status) << std::endl;
     }
     to_cpu(device_positions, cpu_device_buf, positions);
+
+    cudaDeviceSynchronize();
+
+    t = clock() - t;
+    double diff = (double)t / CLOCKS_PER_SEC;
+    std::cout << "GPU of a step complteted in " << diff << std::endl; 
 
 
 }

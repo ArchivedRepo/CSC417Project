@@ -12,6 +12,8 @@ option(LIBIGL_WITH_OPENGL_GLFW          "Use GLFW"              ON)
 option(LIBIGL_WITH_OPENGL_GLFW_IMGUI    "Use ImGui"             ON)
 
 find_package(LIBIGL REQUIRED QUIET)
+add_compile_options(-O3)
+
 
 #include directories
 include_directories(${PROJECT_SOURCE_DIR}/shared/include)
