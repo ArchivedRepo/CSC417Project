@@ -6,8 +6,7 @@
 #include <compute_delta_position.cuh>
 #include <update_position.cuh>
 #include <update_velocity.cuh>
-// #include <viscosity_confinement.h>
-// #include <build_grid.h>
+#include <viscosity_confinement.cuh>
 #include <iostream>
 
 void simulation_step(
@@ -60,6 +59,8 @@ void simulation_step(
     }
     update_velocity<<<grid_dim, thread_block>>>(device_positions, device_positions_star, velocity, dt, N);
     
+    viscosity_confinement<<<grid_dim, thread_block>>>(device_positions_star, velocity, h, cell_start, cell_end,
+    grid_index, particle_index, sim_space_bot_left, sim_space_top_right, cube_s, N);
 
     cudaError_t status;
     if ((status = cudaMemcpy(device_positions, device_positions_star, N*sizeof(float)*3,cudaMemcpyDeviceToDevice))!= cudaSuccess) {
