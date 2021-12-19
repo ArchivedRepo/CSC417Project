@@ -16,6 +16,7 @@ void simulation_step(
     int* particle_index,
     int* cell_start,
     int* cell_end,
+    float* lambdas,
     float cube_s,
     float dt,
     float h,

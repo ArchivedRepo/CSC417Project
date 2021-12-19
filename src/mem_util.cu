@@ -24,7 +24,7 @@ void to_cpu(
 ) {
     cudaError_t status;
     if ((status = cudaMemcpy(buf, src, dest.rows()*3*sizeof(float), cudaMemcpyDeviceToHost)) != cudaSuccess) {
-        std::cout << "to_gpu: " << cudaGetErrorName(status) <<std::endl;
+        std::cout << "to_cpu: " << cudaGetErrorName(status) <<std::endl;
     }
     int pos = 0;
     for (int i =0; i < dest.rows(); i++) {

@@ -2,7 +2,7 @@
 #include <advect.cuh>
 #include <mem_util.cuh>
 #include <build_grid.cuh>
-// #include <compute_lambda.h>
+#include <compute_lambda.cuh>
 // #include <compute_delta_position.h>
 // #include <update_position.h>
 // #include <update_velocity.h>
@@ -24,6 +24,7 @@ void simulation_step(
     int* particle_index,
     int* cell_start,
     int* cell_end,
+    float* lambdas,
     float cube_s,
     float dt,
     float h,
@@ -44,9 +45,14 @@ void simulation_step(
     sim_space_top_right, grid_index, particle_index, cell_start, cell_end, N);
     cudaDeviceSynchronize();
 
+    compute_lambda<<<grid_dim, thread_block>>>(device_positions_star, pho0, mass, epsilon, h,
+    lambdas, cell_start, cell_end, grid_index, particle_index,
+    sim_space_bot_left, sim_space_top_right, cube_s, N);
+    cudaDeviceSynchronize();
+
     cudaError_t status;
     if ((status = cudaMemcpy(device_positions, device_positions_star, N*sizeof(float)*3,cudaMemcpyDeviceToDevice))!= cudaSuccess) {
-        std::cout << "ERROR: " << cudaGetErrorName(status) << std::endl;
+        std::cout << "ERROR memcpy: " << cudaGetErrorName(status) << std::endl;
     }
     to_cpu(device_positions, cpu_device_buf, positions);
 

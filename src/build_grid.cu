@@ -70,7 +70,7 @@ static __global__ void compute_grid_index(
 The following code is adapthed from:
 https://github.com/NVIDIA/cuda-samples/blob/11de19f00cd24e244d2f6869c64810d63aafb926/Samples/particles/particles_kernel_impl.cuh#L148
 */
-__global__ void compute_index(
+static __global__ void compute_index_range(
     int *cellStart,          // output: cell start index
     int *cellEnd,            // output: cell end index
     int *gridParticleHash,   // input: sorted grid hashes
@@ -128,5 +128,5 @@ void build_grid(
     thrust::device_ptr<int> values(particle_index);
     thrust::sort_by_key(keys, keys+N, values);
 
-    compute_index<<<grid_dim, thread_block, shared_mem_size>>>(cell_start, cell_end, grid_index, particle_index, N);
+    compute_index_range<<<grid_dim, thread_block, shared_mem_size>>>(cell_start, cell_end, grid_index, particle_index, N);
 }

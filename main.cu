@@ -19,6 +19,7 @@ int* grid_index;
 int* particle_index;
 int* cell_start;
 int* cell_end;
+float* lambdas;
 
 double particle_init_step = 0.1;
 igl::opengl::glfw::Viewer viewer;
@@ -33,7 +34,7 @@ float3* gravity_m;
 //simulation time and time step
 float t = 0; //simulation time 
 float dt = 0.01; //time step
-float cube_s = 0.2;
+float cube_s = 0.4;
 float h = cube_s;
 float mass = 1.0;
 float pho0 = 10000.0;
@@ -48,7 +49,7 @@ bool simulation_callback() {
     // while (simulating) {
     simulation_step(positions, cpu_device_buf, positions_device, positions_star_device,
     velocity, gravity_m, sim_space_bot_left, sim_space_top_right, result,
-    grid_index, particle_index, cell_start, cell_end,
+    grid_index, particle_index, cell_start, cell_end, lambdas,
     cube_s, dt, h, mass, pho0, epsilon, num_iteration);
 
     // const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
@@ -117,6 +118,9 @@ int main(int argc, char **argv) {
         std::cout << "ERROR cudaMalloc" << cudaGetErrorName(status) << std::endl;
     }
     if ((status = cudaMalloc(&cell_end, sizeof(int)*positions.rows())) != cudaSuccess) {
+        std::cout << "ERROR cudaMalloc" << cudaGetErrorName(status) << std::endl;
+    }
+    if ((status = cudaMalloc(&lambdas, sizeof(float)*positions.rows())) != cudaSuccess) {
         std::cout << "ERROR cudaMalloc" << cudaGetErrorName(status) << std::endl;
     }
 
