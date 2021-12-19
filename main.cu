@@ -53,15 +53,19 @@ bool simulation_callback() {
 
     while (simulating) {
     
-        simulation_step(positions, cpu_device_buf, positions_device, positions_star_device,
-        velocity, gravity_m, sim_space_bot_left, sim_space_top_right, result,
-        grid_index, particle_index, cell_start, cell_end, lambdas, delta_positions,
-        cube_s, dt, h, mass, pho0, epsilon, num_iteration);
+        // simulation_step(positions, cpu_device_buf, positions_device, positions_star_device,
+        // velocity, gravity_m, sim_space_bot_left, sim_space_top_right, result,
+        // grid_index, particle_index, cell_start, cell_end, lambdas, delta_positions,
+        // cube_s, dt, h, mass, pho0, epsilon, num_iteration);
     }
     return true;
 }
 
 bool draw_callback(igl::opengl::glfw::Viewer &viewer) {
+    simulation_step(positions, cpu_device_buf, positions_device, positions_star_device,
+        velocity, gravity_m, sim_space_bot_left, sim_space_top_right, result,
+        grid_index, particle_index, cell_start, cell_end, lambdas, delta_positions,
+        cube_s, dt, h, mass, pho0, epsilon, num_iteration);
     viewer.data().set_points(positions, particle_color);
     return false;
 }
@@ -143,8 +147,8 @@ int main(int argc, char **argv) {
     // Eigen::Vector3d g_v;
     // g_v << 0.0, -9.8, 0.0;
 
-    std::thread simulation_thread(simulation_callback);
-    simulation_thread.detach();
+    // std::thread simulation_thread(simulation_callback);
+    // simulation_thread.detach();
 
     viewer.callback_post_draw = &draw_callback;
 
