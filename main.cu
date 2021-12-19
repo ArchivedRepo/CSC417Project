@@ -40,7 +40,7 @@ float dt = 0.01; //time step
 float cube_s = 0.4;
 float h = cube_s;
 float mass = 1.0;
-float pho0 = 8000.0;
+float pho0 = 12000.0;
 float epsilon = 1000;
 float num_iteration = 3;
 
@@ -74,7 +74,7 @@ bool draw_callback(igl::opengl::glfw::Viewer &viewer) {
 int main(int argc, char **argv) {
 
     std::cout<<"Start Project\n";
-    int num_cell = 64000;
+    int num_cell = 1000;
 
     //setup libigl viewer and activate 
 

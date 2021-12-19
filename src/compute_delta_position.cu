@@ -118,7 +118,7 @@ __global__ void compute_delta_position(
                     float3 local_grad = spiky_grad(diff, h);
 
                     float norm = norm3df(diff.x, diff.y, diff.z);
-                    float s_corr = -0.1 * powf(poly6(norm, h) / poly6(0.1 * h, h), 4.0);
+                    float s_corr = -0.1 * powf(poly6(norm, h) / poly6(0.2 * h, h), 4.0);
 
                     float coeff = lambdas[i] + lambdas[target_id] + s_corr;
                     tmp.x += coeff * local_grad.x;
