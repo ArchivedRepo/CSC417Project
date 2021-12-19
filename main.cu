@@ -7,6 +7,8 @@
 #include <mem_util.cuh>
 #include <simulation_step.cuh>
 
+#include <time.h>
+
 
 Eigen::MatrixXd positions;
 float3* velocity;
@@ -48,14 +50,18 @@ bool simulating = true;
 bool simulation_callback() {
 
     // while (simulating) {
+    clock_t t;
+    t= clock();
     simulation_step(positions, cpu_device_buf, positions_device, positions_star_device,
     velocity, gravity_m, sim_space_bot_left, sim_space_top_right, result,
     grid_index, particle_index, cell_start, cell_end, lambdas, delta_positions,
     cube_s, dt, h, mass, pho0, epsilon, num_iteration);
+    t = clock() - t;
+    double time_taken = ((double)t)/CLOCKS_PER_SEC;
 
     // const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
     // viewer.data().set_points(positions, particle_color);
-    std::cout << "Complete a step" << std::endl;
+    std::cout << "Complete a step in " << time_taken <<  "s" << std::endl;
     // // }
     return true;
 }
