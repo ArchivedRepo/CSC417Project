@@ -55,7 +55,8 @@ void simulation_step(
     update_velocity(positions, positions_star, velocity, dt);
     
     for (int i = 0; i < velocity.rows(); i++){
-        viscosity_confinement(positions_star, velocity, h, i);
+        viscosity_confinement(positions_star, velocity, sim_space_top_right, 
+        sim_space_bot_left, delta_positions, result, grid_indices, cube_s, h, i);
     }
     positions = positions_star;
 }
