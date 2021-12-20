@@ -36,7 +36,7 @@ float3* gravity_m;
 
 //simulation time and time step
 float t = 0; //simulation time 
-float dt = 0.03; //time step
+float dt = 0.01; //time step
 float cube_s = 0.4;
 float h = cube_s;
 float mass = 0.8;
@@ -63,10 +63,13 @@ bool simulation_callback() {
 }
 
 bool draw_callback(igl::opengl::glfw::Viewer &viewer) {
+
     simulation_step(positions, cpu_device_buf, positions_device, positions_star_device,
         velocity, gravity_m, sim_space_bot_left, sim_space_top_right, result,
         grid_index, particle_index, cell_start, cell_end, lambdas, delta_positions,
         cube_s, dt, h, mass, pho0, epsilon, num_iteration);
+
+
     viewer.data_list[xid].set_points(positions, particle_color);
     return false;
 }
@@ -93,16 +96,16 @@ int main(int argc, char **argv) {
     }
     cpu_device_buf = (float*)malloc(sizeof(float)*3);
     Eigen::MatrixXd tmp(1, 3);
-    tmp << 0.0, 0.0, 0.0;
+    tmp << -1.0, -1.0, -1.0;
     to_gpu(tmp, cpu_device_buf, sim_space_bot_left);
-    tmp << 8.0, 8.0, 8.0;
+    tmp << 7.0, 7.0, 7.0;
     to_gpu(tmp, cpu_device_buf, sim_space_top_right);
     tmp << 0.0, -9.8, 0.0;
     to_gpu(tmp, cpu_device_buf, gravity_m);
     free(cpu_device_buf);
 
     Eigen::Vector3d particle_init_bot_left;
-    particle_init_bot_left << 2.0, 2.0, 2.0;
+    particle_init_bot_left << 1.0, 1.0, 1.0;
 
     init_particles(positions, particle_init_bot_left, particle_init_step, 
     20, 30, 20);
