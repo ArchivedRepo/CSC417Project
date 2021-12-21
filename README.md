@@ -29,7 +29,11 @@ cmake ..
 make
 ./pbf
 ```
+Press `a` to start simulation.
+
 Note that you must **not** add `-DCMAKE_BUILD_TYPE` for CUDA implementation.
+
+Linux scheduler seems always put this simulation process in a low priority queue. You may need to jiggle your mouse on the window to keep the simulation running,
 
 The CUDA implementation was only tested on the following configuration:
 ```
