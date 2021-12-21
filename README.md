@@ -1,5 +1,5 @@
 # Position Based Fluids
-This repo implementes both CPU and CUDA version of the Position Based Fluids of <a href="https://mmacklin.com/pbf_sig_preprint.pdf">position=based-fluid.pdf</a>.
+This repo implementes both CPU and CUDA version of the Position Based Fluids of <a href="https://mmacklin.com/pbf_sig_preprint.pdf">position-based-fluid.pdf</a>.
 
 ## Build and Run the Project
 For CPU implementation, clone this repo with,
