@@ -48,7 +48,7 @@ const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
 const int xid = viewer.selected_data_index;
 
 //simulation loop
-bool simulating = true;
+bool simulating = false;
 
 bool simulation_callback() {
 
@@ -67,7 +67,7 @@ bool draw_callback(igl::opengl::glfw::Viewer &viewer) {
     simulation_step(positions, cpu_device_buf, positions_device, positions_star_device,
         velocity, gravity_m, sim_space_bot_left, sim_space_top_right, result,
         grid_index, particle_index, cell_start, cell_end, lambdas, delta_positions,
-        cube_s, dt, h, mass, pho0, epsilon, num_iteration);
+        cube_s, dt, h, mass, pho0, epsilon, num_iteration, simulating);
 
 
     viewer.data_list[xid].set_points(positions, particle_color);

@@ -24,5 +24,6 @@ void simulation_step(
     float mass,
     float pho0, 
     float epsilon,
-    float num_iteration
+    float num_iteration,
+    bool simulation
 );
