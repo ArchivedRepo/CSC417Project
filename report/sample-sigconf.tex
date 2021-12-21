@@ -61,7 +61,7 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-  This paper provides a technical breakdown of implementing a parallel version of the Position Based Fluids(PBF) method. We discussed the simulation algorithms of PBF, the effects of different confinements in the algorithms. We also go in depth of the data structures used to implement the algorithms efficiently. Due to the highly parallelizable nature of the algorithm, we provided a implementation using the CUDA platform which achieves realtime simulation with a particle count of 12k. A CPU version is also available.
+  This paper provides a technical breakdown of implementing a parallel version of the Position Based Fluids(PBF)\cite{10.1145/2461912.2461984} method. We discuss the simulation algorithms of PBF, the effects of different confinements in the algorithms. Due to the highly parallelizable nature of the algorithm, we provide an implementation using the CUDA platform which achieves realtime simulation with a particle count of 27k. A CPU version is also available.
 \end{abstract}
 
 %%
@@ -131,7 +131,7 @@ For particle $i$ at position $p_i$, we compute the density of the fluid around p
 \begin{equation}
   \rho_{F(i)} = \sum_{j \in F(i)} m_j W_{poly6}(\vect{p}_i - \vect{p}_j, h)
 \end{equation}
-where $\rho_0$ is the rest density of the fluid, $m_j$ is the mass of the particle $j$, $h$ is a constant, and $W$ is the Poly6 kernel from [TODO: insert citation]. $F$ is the neighbor function that returns the neighboring particle of particle $i$.
+where $\rho_0$ is the rest density of the fluid, $m_j$ is the mass of the particle $j$, $h$ is a constant, and $W$ is the Poly6 kernel from \cite{10.5555/846276.846298}. $F$ is the neighbor function that returns the neighboring particle of particle $i$.
 
 The Poly6 kernel is defined as follows,
 \begin{equation*}
@@ -141,7 +141,7 @@ The Poly6 kernel is defined as follows,
     0 &\text{otherwise}
   \end{cases}
 \end{equation*}
-where $r$ is the norm of $\vect{r}$. Combine equation (1) and the definition of poly6, we can notice that if the distance between particle $i$ and $j$ is greater than $h$, particle $j$ does not contribute to the density around particle $i$. Thus the neighbor-finding algorithm and need to find the particles whose distance to particle $j$ is smaller or equal to $h$, we will discuss the detail of the neighbor-finding algorithm later.
+where $r$ is the norm of $\vect{r}$. Combine equation (1) and the definition of Poly6, we can notice that if the distance between particle $i$ and $j$ is greater than $h$, particle $j$ does not contribute to the density around particle $i$.
 
 Then we introduce the constant density constraints $C_i$. For particle $i$, we have,
 \begin{equation}
@@ -149,9 +149,9 @@ Then we introduce the constant density constraints $C_i$. For particle $i$, we h
 \end{equation}
 where $\rho_0$ is a constant that denotes the rest density of the fluid, and $\vect{p}$ is the position of all the particles in the system.
 
-Since we want the density around each particle is always equal to $\rho0$, we want to find a particle correction $\Delta(\vect{p})$ such that,
+Since we want the density around each particle is always equal to $\rho0$, we want to find a position correction $ \Delta \vect{\vect{p}}$ such that,
 \begin{equation}
-  C(\vect{p} + \vect{\Delta(\vect{p})}) = 0
+  C(\vect{p} + \Delta \vect{\vect{p}}) = 0
 \end{equation}
 
 The solution to (3) is found by a series of Newton steps along the constraint gradient,
@@ -159,12 +159,12 @@ The solution to (3) is found by a series of Newton steps along the constraint gr
   \Delta(\vect{p}) \approx \nabla C(\vect{p})\lambda
 \end{equation}
 \begin{align*}
-  C(\vect{p} + \vect{\Delta(\vect{p})}) &\approx C(\vect{p}) + \nabla C^T \Delta \vect{p} = 0 \tag*{(5)}\\
+  C(\vect{p} + \Delta \vect{\vect{p}}) &\approx C(\vect{p}) + \nabla C^T \Delta \vect{\vect{p}} = 0 \tag*{(5)}\\
   &\approx C(p) + \nabla C^T \nabla C \lambda = 0 \tag*{(6)}
 \end{align*}
 And the gradient of the constraint $C_i$ with respect to a particle $k$ is given by,
 \begin{equation}
-  \nabla_{\vect{p}_k}C_i = \frac{1}{\rho_0}\sum_{j} \nabla_{\vect{k}}W(\vect{p}_i-\vect{p}_j, h) \tag*{(7)}
+  \nabla_{\vect{p}_k}C_i = \frac{1}{\rho_0}\sum_{j \in F(i)} \nabla_{\vect{k}}W(\vect{p}_i-\vect{p}_j, h) \tag*{(7)}
 \end{equation}
 Which has two different cases based on whether $k$ is a neighboring particle or $k$ is the particle $i$ itself,
 \begin{equation*}
@@ -236,10 +236,10 @@ The viscosity is important for convincing fluid motion. Figure \ref{fig:viscosit
 \end{figure}
 
 \section{Boundary and Collision Response}
-In our implementation, the fluid is confined in a cuboid whose surfaces are parallel to the coordinate planes. We deploy a simple collision scheme as describe in [TODO: CITATION]. Particles that goes out of bound in the fluid advect is clamped into the cuboid with an small distance to the boundary, and velocity of the particle is set to 0.
+In our implementation, the fluid is confined in a cuboid whose surfaces are parallel to the coordinate planes. We deploy a simple collision scheme as describe in \cite{pbf-cuda}. Particles that go out of bound in the fluid advection is clamped into the cuboid with an small distance to the boundary, and velocity of the particle is set to 0.
 
 \section{Grid-based neighbor finding}
-The Poly6 and Spiky function both return 0 when the distance of two particles is greater than $h$. Therefore, we adapted the grid-based neighbor finding algorithm described in [TODO: CITATION]. We implemented the CPU version ourselves, and we modified the source code of [TODO: CITATION] for CUDA version. 
+The Poly6 and Spiky function both return 0 when the distance of two particles is greater than $h$. Therefore, we adapted the grid-based neighbor finding algorithm described in \cite{particle-simulation}. We implemented the CPU version ourselves, and we modified the source code from \cite{particle-source} for CUDA version. 
 
 \section{Implementation details}
 Table \ref{table:name_map} shows the correspondence of algorithm steps to the name of the functions in our code. Since Algorithm \ref{alg:simulation_step} is highly parallelizable with the update of each particle can be computed in parallel, we launch one thread for each particle in the CUDA implementation.
@@ -267,6 +267,57 @@ Table \ref{table:name_map} shows the correspondence of algorithm steps to the na
   \captionof{table}{Actual Function name to the pseudo-code in Algorithm \ref{alg:simulation_step} \label{table:name_map}}
 \end{center}
 
+\section{Result}
+The results were collected on a PC equipped with a Rayen 3700x CPU and RTX3070Ti GPU.
+
+Figure \ref{fig:perf} shows the time taken to generate one frame for both the CPU and GPU implementation. We can see that the GPU implementation is approximately 25x faster than the CPU implementation.
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{image/cpu-gpu-comprasion.png}
+  \caption{Performance Comparison between CPU ans GPU, 2k particles}
+\label{fig:perf}
+\end{figure}
+
+Increase number of particles, the CPU implementation becomes painfully slow. We show the results of the GPU implementation at particle count of 12k, 27k and 125k in table \ref{fig:gpu_perf}.
+\begin{center}
+  \begin{tabular}{| c | c | c |}
+    \hline
+    Particle Count & Time per Frame & Frame per Second(fps)  \\
+    \hline
+    2k & 0.006s & 166fps \\
+    \hline
+    12k & 0.04s &  25fps \\
+    \hline
+    27k & 0.080s & 12fps \\
+    \hline
+  \end{tabular}
+  \captionof{table}{Performance of GPU implementation \label{fig:gpu_perf}}
+\end{center}
+We can see that we achieved real time simulation performance on all of the three particle count performance in table \ref{fig:gpu_perf}.
+
+Figure \ref{fig:splash} is a screenshot from a simulation with 12k particles. The fluid was dropped 2 meters above the floor. We can see from the figure that the fluid have bounded back up from hitting the corner.
+\begin{figure}
+  \centering
+  \includegraphics[width=\linewidth]{image/splash.png}
+  \caption{Screenshot from simulation with 27k particles}
+\label{fig:splash}
+\end{figure}
+
+\section{Discussion}
+There are two major drawbacks of this implementation. 
+
+Firstly, the simulation system runs on GPU and it copies the updated particle positions back to CPU for \verb|libigl| \cite{libigl} to render, which incurs memory transfer costs. This overhead can be completely removed by using an OpenGL render pipeline and leveraging the CUDA-OpenGL Interoperability\cite{cuda-interop}.
+
+Another drawback is that the surface of the fluid was not reconstructed. Further work is required to render the surface of the fluid, which is outside the scope of this project.
+
+Lastly, the GPU implementation was not well-optimized due to time constraint. Further optimization will help achieve a better performance.
+
+
+\section{Conclusion}
+In this paper, we implemented the Position Based Fluids simulation algorithm on both CPU and GPU. We achieved real time simulation performance on the GPU implementation.
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{sample-base}
 
 \end{document}
 \endinput
