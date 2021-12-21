@@ -24,7 +24,7 @@ int* cell_end;
 float* lambdas;
 float3* delta_positions;
 
-double particle_init_step = 0.1;
+double particle_init_step = 0.18;
 igl::opengl::glfw::Viewer viewer;
 
 float3* sim_space_bot_left;
@@ -39,10 +39,10 @@ float t = 0; //simulation time
 float dt = 0.01; //time step
 float cube_s = 0.4;
 float h = cube_s;
-float mass = 0.8;
-float pho0 = 8000.0;
+float mass = 1.0;
+float pho0 = 10000.0;
 float epsilon = 1000;
-float num_iteration = 3;
+float num_iteration = 4;
 
 const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
 const int xid = viewer.selected_data_index;
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
     particle_init_bot_left << 1.0, 1.0, 1.0;
 
     init_particles(positions, particle_init_bot_left, particle_init_step, 
-    20, 30, 20);
+    30, 30, 30);
     cpu_device_buf = (float*)malloc(sizeof(float)*3*positions.rows());
     
     if ((status = cudaMalloc(&positions_device, sizeof(float3)*positions.rows())) != cudaSuccess) {
