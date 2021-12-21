@@ -42,7 +42,7 @@ Driver Version: 470.86, CUDA version: 11.4
 ```
 
 ## Video
-TODO
+https://youtu.be/Ir8zYItzcG4
 
 ## Report
 See <a href="https://github.com/Willqie/CSC417Project/blob/master/report/report.pdf">paper.pdf</a>
