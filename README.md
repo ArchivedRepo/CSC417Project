@@ -29,6 +29,8 @@ cmake ..
 make
 ./pbf
 ```
+Note that you must **not** add `-DCMAKE_BUILD_TYPE` for CUDA implementation.
+
 The CUDA implementation was only tested on the following configuration:
 ```
 Cuda compilation tools, release 10.1, V10.1.243
