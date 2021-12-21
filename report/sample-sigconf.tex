@@ -1,5 +1,10 @@
 \documentclass[sigconf]{acmart}
 \usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 \newcommand{\vect}[1]{\boldsymbol{#1}}
 
@@ -86,8 +91,40 @@
 \maketitle
 
 \section{Introduction}
-Fluids in computer animations are simulated with discrete particles, the surface of the fluids is reconstructed at render time based on the position of the underlying particles. In each time step, the PBF method first predicts the positions and velocity, then corrects the particle positions by enforcing the incompressibility constraints. The new velocity of the particles are computed from the new positions and the position of the particles at the last time step.
+In Position Based Fluids(PBF) method, fluids are simulated with discrete particles, the surfaces of the fluids are reconstructed at render time based on the position of the underlying particles. In each time step, the PBF method first predicts the positions and velocity. Then it corrects the particle positions by enforcing the incompressibility constraints. The new velocity of the particles are computed from the new positions and the original positions of the particles.
 
+Algorithm \ref{alg:simulation_step} is an overview of a simulation step in PBF method.
+
+\begin{algorithm}
+  \caption{simulation step}
+  \label{alg:simulation_step}
+  \begin{algorithmic}[1]
+    \For{all particles $i$}: \Comment{Fluid advect}
+    \State apply forces $\vect{v}_i = \vect{v}_i + \Delta t f_{ext}$
+    \State predict position $\vect{x}_i^* = \vect{x}_i + \Delta t \vect{v_i}$
+    \EndFor
+    \For{all particles $i$}:
+    \State find neighboring particles $F(\vect{x}_i^*)$
+    \EndFor
+    \While{$iter < solverIterations$}: \Comment{Iterativly solves imcompressibility constraints}
+      \For{all particles $i$}:
+      \State calculate $\lambda_i$
+      \EndFor
+      \For{all particles $i$}:
+      \State calculate $\Delta \vect{p}_i$
+      \State perform collision detection and response
+      \EndFor
+      \For{all particles $i$}:
+      \State update position $\vect{x}_i^* = \vect{x}_i^* + \Delta \vect{p}_i$
+      \EndFor
+    \EndWhile
+    \For{all particles $i$}:
+    \State update velocity $\vect{v}_i = \frac{1}{\Delta t}(\vect{x}_i^*-\vect{x}_i)$
+    \State apply viscosity
+    \State update position $\vect{x}_i = \vect{x}_i^*$
+      \EndFor
+  \end{algorithmic}
+\end{algorithm}
 
 \section{Enforcing incompressibility}
 For particle $i$ at position $p_i$, we compute the density of the fluid around particle $i$ using the estimator:
@@ -117,7 +154,7 @@ Since we want the density around each particle is always equal to $\rho0$, we wa
   C(\vect{p} + \vect{\Delta(\vect{p})}) = 0
 \end{equation}
 
-The solution to (3) is found by a series of Newton steps along the constraint gradient
+The solution to (3) is found by a series of Newton steps along the constraint gradient,
 \begin{equation}
   \Delta(\vect{p}) \approx \nabla C(\vect{p})\lambda
 \end{equation}
@@ -156,8 +193,79 @@ Then the position correction $\Delta \vect{p}_i$ including affect from neighbori
 \begin{equation}
   \Delta \vect{p}_i = \frac{1}{\rho_0} \sum_j (\lambda_i + \lambda_j) \nabla W(\vect{p}_i - \vect{p}_j , h) \tag*{(12)}
 \end{equation}
+And we have the position update formula,
+\begin{equation}
+  \vect{p}_i^* = \vect{p}_i + \Delta \vect{p}_i \tag*{(13)}
+\end{equation}
 
+\section{Tensile Instability}
+The original PBF paper adds an artificial pressure to mitigate the issue of particle clamping. It introduced an additional correction coefficient defined as,
+\begin{equation}
+  s_{corr} = - k \left(\frac{W(\vect{p}_i-\vect{p}_j, h)}{W(\Delta \vect{q}, h)} \right)^n \tag*{(14)}
+\end{equation}
+where $\Delta \vect{q}$ is a point some fixed distance inside the smoothing kernel radius and $k$ is a small positive constant. In our implementation, we take $k=0.1, |\Delta \vect{q}| = 0.1h$ and $n=4$. Then the modified position update formula becomes,
+\begin{equation}
+  \Delta \vect{p}_i = \frac{1}{\rho_0} \sum_j (\lambda_i + \lambda_j + s_{corr}) \nabla W(\vect{p}_i - \vect{p}_j , h) \tag*{(15)}
+\end{equation}
 
+\section{Vorticity Confinement and Viscosity}
+The original PBF paper implemented vorticity to replace lost energy. However, due to the time constraint, we did not implement vorticity confinement.
+
+We implemented viscosity, which is defined as follows,
+\begin{equation}
+  \vect{v}_i^* = \vect{v}_i + c \sum_j \vect{v}_{ij} \cdot W(\vect{p}_i-\vect{p}_j, h) \tag*{16}.
+\end{equation}
+where $\vect{v}_{ij} = \vect{v}_j - \vect{v}_i$. The parameter $c$ is chosen to be 0.001 in our simulation after a few trail and error.
+The viscosity is important for convincing fluid motion. Figure \ref{fig:viscosity} shows the effect of the viscosity. When viscosity is not implemented, the particles are more scattered and have the tendency of not moving together, which is not realistic. With viscosity implemented, the fluid is more ``thick" visually and thus more similar to how real water moves.
+\begin{figure}
+  \centering
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[width=.6\linewidth]{image/with-viscosity.png}
+    \caption{With Viscosity Implemented}
+    \label{fig:with-viscosity}
+  \end{subfigure}
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[width=.6\linewidth]{image/without-viscosity.png}
+    \caption{Without Viscosity Implemented}
+    \label{fig:without-viscosity}
+  \end{subfigure}
+  \caption{Comparison of the fluid motion with/without viscosity implemented, taken at the same time step.}
+\label{fig:viscosity}
+\end{figure}
+
+\section{Boundary and Collision Response}
+In our implementation, the fluid is confined in a cuboid whose surfaces are parallel to the coordinate planes. We deploy a simple collision scheme as describe in [TODO: CITATION]. Particles that goes out of bound in the fluid advect is clamped into the cuboid with an small distance to the boundary, and velocity of the particle is set to 0.
+
+\section{Grid-based neighbor finding}
+The Poly6 and Spiky function both return 0 when the distance of two particles is greater than $h$. Therefore, we adapted the grid-based neighbor finding algorithm described in [TODO: CITATION]. We implemented the CPU version ourselves, and we modified the source code of [TODO: CITATION] for CUDA version. 
+
+\section{Implementation details}
+Table \ref{table:name_map} shows the correspondence of algorithm steps to the name of the functions in our code. Since Algorithm \ref{alg:simulation_step} is highly parallelizable with the update of each particle can be computed in parallel, we launch one thread for each particle in the CUDA implementation.
+
+\begin{center}
+  \begin{tabular}{| c | c |}
+    \hline
+    Line Number & CUDA Kernel Name\/ CPU Function Name  \\
+    \hline
+    1 - 4, 14 & advect \\
+    \hline
+    5 - 7 & build\_grid \\
+    \hline
+    9 - 11 & compute\_lambda \\
+    \hline
+    12-15 & compute\_delta\_position \\
+    \hline
+    16-19 & update\_position \\
+    \hline
+    21 & update\_velocity \\
+    \hline
+    22 & viscosity\_confinement \\
+    \hline
+  \end{tabular}
+  \captionof{table}{Actual Function name to the pseudo-code in Algorithm \ref{alg:simulation_step} \label{table:name_map}}
+\end{center}
 
 
 \end{document}
