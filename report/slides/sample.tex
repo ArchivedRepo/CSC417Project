@@ -116,16 +116,31 @@
 \end{frame}
 
 \begin{frame}{Performance of Implementation}
-    
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.6\linewidth]{../image/cpu-gpu-comprasion.png}
+        \caption{Performance Comparison between CPU ans GPU, 2k particles}
+    \end{figure}
 
 \end{frame}
 
 
-\begin{frame}{References}
-    \begin{figure}
-        \includegraphics[width=1.0\linewidth]{../image/reference.png}
-        \end{figure}
-    
+\begin{frame}{Performance of CUDA Implementation}
+    \begin{center}
+        \begin{tabular}{| c | c | c |}
+          \hline
+          Particle Count & Time per Frame & Frame per Second(fps)  \\
+          \hline
+          2k & 0.006s & 166fps \\
+          \hline
+          12k & 0.01s &  100fps \\
+          \hline
+          27k & 0.021s & 47.6fps \\
+          \hline
+          80k & 0.064 & 15.6fps \\
+          \hline
+        \end{tabular}
+    \end{center}
 \end{frame}
 
 
