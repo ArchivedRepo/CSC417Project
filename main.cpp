@@ -8,7 +8,7 @@
 
 Eigen::MatrixXd positions;
 Eigen::MatrixXd velocity;
-double particle_init_step = 0.1;
+double particle_init_step = 0.18;
 igl::opengl::glfw::Viewer viewer;
 
 Eigen::Vector3d sim_space_bot_left;
@@ -19,28 +19,28 @@ Eigen::Vector3d sim_space_top_right;
 Eigen::MatrixXd gravity_m;
 
 //simulation time and time step
-double t = 0; //simulation time 
-double dt = 0.01; //time step
-double cube_s = 0.2;
-double h = cube_s;
-double mass = 1.0;
-double pho0 = 10000.0;
-double epsilon = 1000;
-double num_iteration = 3;
+float t = 0; //simulation time 
+float dt = 0.01; //time step
+float cube_s = 0.4;
+float h = cube_s;
+float mass = 1.0;
+float pho0 = 10000.0;
+float epsilon = 1000;
+float num_iteration = 4;
 
 //simulation loop
 bool simulating = true;
 
 bool simulation_callback() {
 
-    // while (simulating) {
-    simulation_step(positions, velocity, gravity_m, sim_space_bot_left, 
-    sim_space_top_right, cube_s, dt, h, mass, pho0, epsilon, num_iteration);
+    while (simulating) {
+        simulation_step(positions, velocity, gravity_m, sim_space_bot_left, 
+        sim_space_top_right, cube_s, dt, h, mass, pho0, epsilon, num_iteration);
 
-    const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
-    viewer.data().set_points(positions, particle_color);
-    std::cout << "Complete a step" << std::endl;
-    // }
+        const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
+        viewer.data().set_points(positions, particle_color);
+    // std::cout << "Complete a step" << std::endl;
+    }
     return true;
 }
 
@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 
     const Eigen::RowVector3d particle_color(0.333, 0.647, 0.905);
     init_particles(positions, particle_init_bot_left, particle_init_step, 
-    20, 20, 20);
+    10, 20, 10);
     velocity.resize(positions.rows(), 3);
     velocity.setZero();
     viewer.data().set_points(positions, particle_color);
@@ -82,7 +82,8 @@ int main(int argc, char **argv) {
 			case 'A':
 			case 'a':
 				//with ghost pressure
-				simulation_callback();
+                simulating = !simulating;
+				// simulation_callback();
 				break;
 			default:
 				return false;

@@ -6,6 +6,8 @@
 #include <update_velocity.h>
 #include <viscosity_confinement.h>
 #include <build_grid.h>
+#include <iostream>
+#include <time.h>
 
 void simulation_step(
     Eigen::MatrixXd &positions,
@@ -20,7 +22,9 @@ void simulation_step(
     double pho0, 
     double epsilon,
     double num_iteration
-) {
+) { 
+    clock_t t = clock();
+
     Eigen::MatrixXd positions_star;
     positions_star.resize(positions.rows(), 3);
     
@@ -59,4 +63,8 @@ void simulation_step(
         sim_space_bot_left, delta_positions, result, grid_indices, cube_s, h, i);
     }
     positions = positions_star;
+
+    t = clock() - t;
+    double diff = (double)t / CLOCKS_PER_SEC;
+    std::cout << diff << std::endl;
 }
